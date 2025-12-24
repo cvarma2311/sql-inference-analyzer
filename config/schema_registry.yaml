@@ -1,0 +1,160 @@
+tables:
+  MOM_DAY_LEVEL_DATA:
+    allowed_columns:
+      - ORGSBUCD
+      - SBU_Name
+      - ORGZONECD
+      - Zone_Name
+      - ORGROCD
+      - Region_Name
+      - ORGSACD
+      - SalesArea_Name
+      - PRODUCTCODE
+      - ProductName
+      - CURFISCALYEAR
+      - FISCALYEAR
+      - YEARMONTH
+      - NETWEIGHT_UOM
+      - NETWEIGHT_KG
+      - NETWEIGHT_TMT
+      - fiscal_year
+      - engine_id
+      - month_name
+      - DAY_ID
+      - DISTRIBUTION_CHANNEL_CD
+      - MATERIAL_GROUP_CD
+    column_descriptions:
+      ORGSBUCD: Organizational SBU code.
+      SBU_Name: Name of the strategic business unit (e.g., Retail, LPG).
+      ORGZONECD: Zone code for geographic sales zone.
+      Zone_Name: Zone name.
+      ORGROCD: Region code within a zone.
+      Region_Name: Region name.
+      ORGSACD: Sales area code within a region.
+      SalesArea_Name: Sales area name.
+      PRODUCTCODE: Product code.
+      ProductName: Product name (e.g., HSD, MS).
+      CURFISCALYEAR: Current fiscal year (e.g., 2025-26).
+      FISCALYEAR: Fiscal year of the record.
+      YEARMONTH: Year and month concatenated (e.g., 202406).
+      NETWEIGHT_UOM: Net weight unit of measure (e.g., KG, TMT).
+      NETWEIGHT_KG: Net weight in kilograms.
+      NETWEIGHT_TMT: Net weight in metric tons.
+      fiscal_year: Fiscal year of the record.
+      engine_id: Engine identifier for data lineage.
+      month_name: Month name.
+      DAY_ID: Date for the record.
+      DISTRIBUTION_CHANNEL_CD: Distribution channel classification.
+      MATERIAL_GROUP_CD: Material group classification.
+
+  M60_LEVEL_METADATA:
+    allowed_columns:
+      - SBU
+      - SBU_Name
+      - ZONE
+      - Zone_Name
+      - REGION
+      - Region_Name
+      - SA
+      - SalesArea_Name
+      - PRODUCT
+      - ProductName
+      - UOM
+      - INVOICE_DT
+      - TARGET_QTY_KL
+      - TARGET_QTY_TMT
+      - fiscal_year
+      - CUR_FISCAL_YEAR
+      - ORGSBUCD
+      - ORGSBUNAME
+      - ORGZONECD
+      - ORGZONENAME
+      - ORGROCD
+      - ORGRONAME
+      - ORGSACD
+      - ORGSANAME
+      - PRODUCTCODE
+      - MATERIALGROUPNAME
+      - CURFISCALYEAR
+      - FISCALYEAR
+      - YEARMONTH
+      - NETWEIGHT_UOM
+      - NETWEIGHT_KG
+      - NETWEIGHT_TMT
+      - Total_Days_Till_PresentDay
+      - Number_Of_Sundays_Till_PresentDay
+      - TARGET_ROUND
+      - Actual_ROUND
+      - FinalSum
+      - FinalActualSum
+      - MaxPendingDays
+      - Working_Days_Till_PresentDay_WithoutSundays
+      - Rate_Per_Day_Required_MMT
+      - Rate_per_day_current_MMT
+      - Total_Days_in_FY
+      - Pending_Days
+      - month_year
+      - month_name
+      - fy_month
+      - year_monthname
+      - Target_Quantity_TMTT
+      - Prediction_Value
+      - Act_Tgt_Achievement
+      - Zone_Region_Achievement
+      - Product_Achievement
+      - engine_id
+    column_descriptions:
+      SBU: SBU code (target data).
+      SBU_Name: Strategic business unit name.
+      ZONE: Zone code.
+      Zone_Name: Zone name.
+      REGION: Region code.
+      Region_Name: Region name.
+      SA: Sales area code.
+      SalesArea_Name: Sales area name.
+      PRODUCT: Product code or identifier.
+      ProductName: Product name.
+      UOM: Unit of measure (e.g., KG, TMT, KL).
+      INVOICE_DT: Invoice date (sales transaction date).
+      TARGET_QTY_KL: Target sales in kiloliters.
+      TARGET_QTY_TMT: Target sales in metric tons.
+      fiscal_year: Fiscal year of the record.
+      CUR_FISCAL_YEAR: Current fiscal year of the record.
+      ORGSBUCD: Organizational SBU code.
+      ORGSBUNAME: Organizational SBU name.
+      ORGZONECD: Organizational zone code.
+      ORGZONENAME: Organizational zone name.
+      ORGROCD: Organizational region code.
+      ORGRONAME: Organizational region name.
+      ORGSACD: Organizational sales area code.
+      ORGSANAME: Organizational sales area name.
+      PRODUCTCODE: Product code.
+      MATERIALGROUPNAME: Material group name.
+      CURFISCALYEAR: Current fiscal year of the record.
+      FISCALYEAR: Fiscal year of the record.
+      YEARMONTH: Year and month concatenated.
+      NETWEIGHT_UOM: Net weight unit of measure.
+      NETWEIGHT_KG: Net weight in kilograms.
+      NETWEIGHT_TMT: Net weight in metric tons.
+      Total_Days_Till_PresentDay: Days from fiscal start to today.
+      Number_Of_Sundays_Till_PresentDay: Sundays counted from fiscal start to today.
+      TARGET_ROUND: Rounded or simplified target quantity.
+      Actual_ROUND: Rounded or cumulative actual quantity.
+      FinalSum: Final sum of values across periods.
+      FinalActualSum: Final sum of actual quantities.
+      MaxPendingDays: Maximum pending days.
+      Working_Days_Till_PresentDay_WithoutSundays: Working days excluding Sundays.
+      Rate_Per_Day_Required_MMT: Required daily rate to meet target (MMT).
+      Rate_per_day_current_MMT: Current daily rate achieved (MMT).
+      Total_Days_in_FY: Total days in the fiscal year.
+      Pending_Days: Remaining days in fiscal year.
+      month_year: Month and year value.
+      month_name: Month name.
+      fy_month: Fiscal month index.
+      year_monthname: Full year and month name.
+      Target_Quantity_TMTT: Alternate target quantity in TMT.
+      Prediction_Value: Forecasted or predicted quantity.
+      Act_Tgt_Achievement: Actual vs target achievement percentage.
+      Zone_Region_Achievement: Achievement percentage by zone and region.
+      Product_Achievement: Achievement percentage by product.
+      engine_id: Engine identifier for data lineage.

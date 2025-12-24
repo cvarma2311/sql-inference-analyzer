@@ -1,0 +1,11 @@
+I got actual_tmt:
+  table: MOM_DAY_LEVEL_DATA
+  column: NETWEIGHT_TMT
+  aggregation: SUM
+  description: Actual sales in TMT.
+
+target_tmt:
+  table: M60_LEVEL_METADATA
+  column: TARGET_QTY_TMT
+  aggregation: SUM
+  description: Target sales in TMT.

@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+pydantic
+sqlalchemy
+psycopg2-binary
+jinja2
+jsonschema
+httpx
+python-dotenv
+pyyaml
+sqlparse
+# Optional embeddings support
+sentence-transformers
