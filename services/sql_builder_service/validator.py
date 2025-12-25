@@ -45,6 +45,7 @@ SQL_KEYWORDS = {
     "max",
     "avg",
     "numeric",
+    "date",
 }
 
 
@@ -63,6 +64,7 @@ class SqlValidator:
             for table in schema.get("tables", {}).values()
             for col in table.get("allowed_columns", [])
         }
+        self.allowed_aliases = {"actual_tmt", "target_tmt"}
         self.mandatory_constraints = load_mandatory_constraints()
 
     def validate(self, sql: str) -> ValidationResult:
@@ -83,7 +85,11 @@ class SqlValidator:
             if disallowed_tables:
                 errors.append(f"Disallowed tables: {disallowed_tables}")
 
-        disallowed_columns = sorted(c for c in self._extract_columns(sql_stripped) if c not in self.allowed_columns)
+        disallowed_columns = sorted(
+            c
+            for c in self._extract_columns(sql_stripped)
+            if c not in self.allowed_columns and c not in self.allowed_aliases
+        )
         if disallowed_columns:
             errors.append(f"Disallowed columns: {disallowed_columns}")
 
@@ -102,9 +108,13 @@ class SqlValidator:
 
     def _extract_tables(self, sql: str) -> set[str]:
         tables = set()
-        pattern = re.compile(r"\b(from|join)\s+([\w\"]+)", re.IGNORECASE)
+        pattern = re.compile(
+            r"\b(from|join)\s+((?:\"?[A-Za-z0-9_]+\"?\.)?\"?[A-Za-z0-9_]+\"?)",
+            re.IGNORECASE,
+        )
         for _, table in pattern.findall(sql):
-            tables.add(table.replace('"', ""))
+            table_name = table.split(".")[-1]
+            tables.add(table_name.replace('"', ""))
         return tables
 
     def _extract_columns(self, sql: str) -> set[str]:
@@ -116,9 +126,18 @@ class SqlValidator:
                     continue
                 value = token.value
                 if value.isidentifier() and value.lower() not in SQL_KEYWORDS:
+                    if value in self.allowed_tables:
+                        continue
+                    if value.lower() == "public":
+                        continue
                     columns.add(value)
                 if value.startswith("\"") and value.endswith("\""):
-                    columns.add(value.strip('"'))
+                    unquoted = value.strip('"')
+                    if unquoted in self.allowed_tables:
+                        continue
+                    if unquoted.lower() == "public":
+                        continue
+                    columns.add(unquoted)
         return columns
 
     def _uses_aggregation(self, sql: str) -> bool:
@@ -127,6 +146,10 @@ class SqlValidator:
     def _has_bounded_date_filter(self, sql: str) -> bool:
         date_columns = ["day_id", "year_monthname", "invoice_dt"]
         for col in date_columns:
-            if re.search(rf"\b{col}\b\s*(::date)?\s*between\b", sql, re.IGNORECASE):
+            quoted_pattern = rf'"{col}"\s*(::date)?\s*between\b'
+            unquoted_pattern = rf'\b{col}\b\s*(::date)?\s*between\b'
+            if re.search(quoted_pattern, sql, re.IGNORECASE) or re.search(
+                unquoted_pattern, sql, re.IGNORECASE
+            ):
                 return True
         return False

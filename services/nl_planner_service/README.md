@@ -30,6 +30,7 @@ curl -s http://localhost:8000/plan -H 'Content-Type: application/json' -d '{"que
 - `LOG_LEVEL` (default: `INFO`)
 - `LOG_FILE` (optional file path; when set logs are written to this file)
 - `PLANNER_SCHEMA_CONTEXT` (`on` or `off`, default: `on`)
+- `LOG_PLAN_OUTPUT` (`on` or `off`, default: `on`)
 
 ## Request IDs
 

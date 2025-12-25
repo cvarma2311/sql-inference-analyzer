@@ -1,10 +1,10 @@
 SELECT
-  month_name,
-  ROUND(SUM(TARGET_QTY_TMT)::numeric, 2) AS target_tmt
-FROM M60_LEVEL_METADATA
+  "month_name",
+  ROUND(SUM("TARGET_QTY_TMT")::numeric, 2) AS target_tmt
+FROM {{ db_schema }}."M60_LEVEL_METADATA"
 WHERE
-  SBU_Name = '{{ sbu }}'
+  "SBU_Name" = '{{ sbu }}'
   AND {{ mandatory_constraints }}
-  AND year_monthname::DATE BETWEEN '{{ start_date }}' AND '{{ end_date }}'
-GROUP BY month_name
-ORDER BY month_name;
+  AND "year_monthname"::DATE BETWEEN '{{ start_date }}' AND '{{ end_date }}'
+GROUP BY "month_name"
+ORDER BY "month_name";

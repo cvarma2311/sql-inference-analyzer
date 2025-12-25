@@ -8,6 +8,6 @@ def get_settings() -> dict:
         "llm_timeout_s": float(os.getenv("LLM_TIMEOUT_S", "30")),
         "llm_retries": int(os.getenv("LLM_RETRIES", "2")),
         "llm_retry_backoff_s": float(os.getenv("LLM_RETRY_BACKOFF_S", "0.5")),
-        "planner_schema_context": os.getenv("PLANNER_SCHEMA_CONTEXT", "on").lower(),
-        "log_plan_output": os.getenv("LOG_PLAN_OUTPUT", "on").lower(),
+        "narrative_max_tokens": int(os.getenv("NARRATIVE_MAX_TOKENS", "256")),
+        "log_narrative_output": os.getenv("LOG_NARRATIVE_OUTPUT", "on").lower(),
     }

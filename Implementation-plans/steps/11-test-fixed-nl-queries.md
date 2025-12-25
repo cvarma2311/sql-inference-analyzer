@@ -1,4 +1,4 @@
-# Step 10 - Test With Fixed NL Queries
+# Step 11 - Test With Fixed NL Queries
 
 ## Goal
 Validate the end-to-end pipeline with a deterministic test suite.

@@ -1,10 +1,10 @@
 SELECT
-  month_name,
-  ROUND(SUM(NETWEIGHT_TMT)::numeric, 2) AS actual_tmt
-FROM MOM_DAY_LEVEL_DATA
+  "month_name",
+  ROUND(SUM("NETWEIGHT_TMT")::numeric, 2) AS actual_tmt
+FROM {{ db_schema }}."MOM_DAY_LEVEL_DATA"
 WHERE
-  SBU_Name = '{{ sbu }}'
+  "SBU_Name" = '{{ sbu }}'
   AND {{ mandatory_constraints }}
-  AND DAY_ID BETWEEN '{{ start_date }}' AND '{{ end_date }}'
-GROUP BY month_name
-ORDER BY month_name;
+  AND "DAY_ID" BETWEEN '{{ start_date }}' AND '{{ end_date }}'
+GROUP BY "month_name"
+ORDER BY "month_name";

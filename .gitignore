@@ -32,5 +32,8 @@ models/
 # External builds
 external/llama.cpp/build/
 
+# Audit logs
+audit_logs/
+
 # Logs
 *.log

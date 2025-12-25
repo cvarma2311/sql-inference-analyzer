@@ -132,6 +132,12 @@ async def log_requests(request, call_next):
 def create_plan(payload: PlanRequest) -> PlanResponse:
     try:
         plan = plan_question(payload.question)
+        settings = get_settings()
+        if settings["log_plan_output"] != "off":
+            logger.info(
+                "plan_output",
+                extra={"extra": {"plan": plan}},
+            )
         return PlanResponse(**plan)
     except ValueError as exc:
         logger.error("plan_validation_failed", extra={"extra": {"error": str(exc)}})
