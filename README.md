@@ -23,7 +23,7 @@ uvicorn services.nl2sql_service.main:app --reload --port 8002
 ```bash
 curl -s http://localhost:8002/nl2sql \
   -H 'Content-Type: application/json' \
-  -d '{"question":"How is Retail doing this FY vs target and what are the drivers?","start_date":"2025-04-01","end_date":"2025-10-06"}'
+  -d '{"question":"How is Retail doing this FY vs target and what are the drivers?","fiscal_year":"2025-2026","start_date":"2025-04-01","end_date":"2025-10-06"}'
 ```
 
 ### 4) Send a planner-only request
@@ -55,7 +55,7 @@ uvicorn services.pipeline_service.main:app --reload --port 8004
 ```bash
 curl -s http://localhost:8004/analyze \
   -H 'Content-Type: application/json' \
-  -d '{"question":"How is Retail doing this FY vs target and what are the drivers?","start_date":"2025-04-01","end_date":"2025-10-06"}'
+  -d '{"question":"How is Retail doing this FY vs target and what are the drivers?","fiscal_year":"2025-2026","start_date":"2025-04-01","end_date":"2025-10-06"}'
 ```
 
 ### Optional: stop llama.cpp server
@@ -94,6 +94,7 @@ Use `.env.example` as a template for `.env`.
 - `LOG_NARRATIVE_OUTPUT` (`on` or `off`, default: `on`)
 - `DEFAULT_START_DATE` (required for pipeline)
 - `DEFAULT_END_DATE` (required for pipeline)
+- `DEFAULT_FISCAL_YEAR` (optional, format: `YYYY-YYYY`, example: `2025-2026`)
 - `AUDIT_LOG_DIR` (default: `audit_logs`)
 
 ## Logging Correlation

@@ -19,6 +19,13 @@ uvicorn services.nl_planner_service.main:app --reload --port 8000
 curl -s http://localhost:8000/plan -H 'Content-Type: application/json' -d '{"question":"How is Retail doing this FY vs target and what are the drivers?"}'
 ```
 
+## Output Fields
+
+- `level`: one of `sbu`, `zone`, `region`, `sales_area`, `product`
+- `filters`: optional hierarchy filters (e.g., `sbu: Retail`)
+- `driver_levels`: ordered drilldown levels to `product`
+- `fiscal_year`: normalized to `YYYY-YYYY` when provided
+
 ## Environment
 
 - `LLM_URL` (default: `http://localhost:8001/v1/chat/completions`)

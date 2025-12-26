@@ -14,5 +14,5 @@ Persist request artifacts for traceability.
 ## Local Usage
 
 ```bash
-python -c "from services.audit_log_service.audit_log import build_audit_record, write_audit_record; rec = build_audit_record('req-1','question',{},[],[],{},'narrative'); print(write_audit_record(rec))"
+python -c "from services.audit_log_service.audit_log import build_audit_record, write_audit_record; rec = build_audit_record('req-1','question',{},[],[],{}, {'summary':{}}, ['bullet 1']); print(write_audit_record(rec))"
 ```
