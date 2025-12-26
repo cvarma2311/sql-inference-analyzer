@@ -1,0 +1,20 @@
+SELECT
+  {% for col in group_by_columns %}
+  "{{ col }}"{% if not loop.last %}, {% endif %}
+  {% endfor %},
+  ROUND(SUM("TARGET_QTY_TMT")::numeric, 2) AS target_tmt
+FROM {{ db_schema }}."M60_LEVEL_METADATA"
+WHERE
+  {{ mandatory_constraints }}
+  AND "fiscal_year" = '{{ fiscal_year }}'
+  {% for col, value in filters.items() %}
+  AND "{{ col }}" = '{{ value }}'
+  {% endfor %}
+GROUP BY
+  {% for col in group_by_columns %}
+  "{{ col }}"{% if not loop.last %}, {% endif %}
+  {% endfor %}
+{{ "\n" }}ORDER BY
+  {% for col in group_by_columns %}
+  "{{ col }}"{% if not loop.last %}, {% endif %}
+  {% endfor %};

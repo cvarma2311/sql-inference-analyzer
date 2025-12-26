@@ -19,7 +19,8 @@ class AuditRecord:
     sql: list[dict[str, Any]]
     execution: list[dict[str, Any]]
     inference: dict[str, Any]
-    narrative: str
+    narrative: dict[str, Any]
+    summary_bullets: list[str]
     created_at: str
 
 
@@ -46,13 +47,14 @@ def write_audit_record(record: AuditRecord) -> dict[str, Any]:
         "execution": record.execution,
         "inference": record.inference,
         "narrative": record.narrative,
+        "summary_bullets": record.summary_bullets,
         "created_at": record.created_at,
     }
     record_hash = _hash_payload(payload)
     payload["record_hash"] = record_hash
 
     file_path = audit_dir / f"{record.request_id}.json"
-    file_path.write_text(json.dumps(payload, indent=2))
+    file_path.write_text(json.dumps(payload, indent=2, default=str))
 
     return {
         "path": str(file_path),
@@ -67,7 +69,8 @@ def build_audit_record(
     sql: list[dict[str, Any]],
     execution: list[dict[str, Any]],
     inference: dict[str, Any],
-    narrative: str,
+    narrative: dict[str, Any],
+    summary_bullets: list[str],
 ) -> AuditRecord:
     created_at = datetime.now(timezone.utc).isoformat()
     return AuditRecord(
@@ -78,5 +81,6 @@ def build_audit_record(
         execution=execution,
         inference=inference,
         narrative=narrative,
+        summary_bullets=summary_bullets,
         created_at=created_at,
     )

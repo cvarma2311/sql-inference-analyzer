@@ -1,0 +1,49 @@
+WITH actuals AS (
+  SELECT
+    {% for col in driver_columns -%}
+    "{{ col }}"{% if not loop.last %}, {% endif %}
+    {%- endfor %},
+    ROUND(SUM("NETWEIGHT_TMT")::numeric, 2) AS actual_tmt
+  FROM {{ db_schema }}."MOM_DAY_LEVEL_DATA"
+  WHERE
+    {{ mandatory_constraints }}
+    AND "fiscal_year" = '{{ fiscal_year }}'
+    {% for col, value in filters.items() %}
+    AND "{{ col }}" = '{{ value }}'
+    {% endfor %}
+  GROUP BY
+    {% for col in driver_columns -%}
+    "{{ col }}"{% if not loop.last %}, {% endif %}
+    {%- endfor %}
+),
+targets AS (
+  SELECT
+    {% for col in driver_columns -%}
+    "{{ col }}"{% if not loop.last %}, {% endif %}
+    {%- endfor %},
+    ROUND(SUM("TARGET_QTY_TMT")::numeric, 2) AS target_tmt
+  FROM {{ db_schema }}."M60_LEVEL_METADATA"
+  WHERE
+    {{ mandatory_constraints }}
+    AND "fiscal_year" = '{{ fiscal_year }}'
+    {% for col, value in filters.items() %}
+    AND "{{ col }}" = '{{ value }}'
+    {% endfor %}
+  GROUP BY
+    {% for col in driver_columns %}
+    "{{ col }}"{% if not loop.last %}, {% endif %}
+    {% endfor %}
+)
+SELECT
+  {% for col in driver_columns %}
+  COALESCE(a."{{ col }}", t."{{ col }}") AS "{{ col }}"{% if not loop.last %}, {% endif %}
+  {% endfor %},
+  COALESCE(a.actual_tmt, 0) AS actual_tmt,
+  COALESCE(t.target_tmt, 0) AS target_tmt,
+  ROUND((COALESCE(a.actual_tmt, 0) - COALESCE(t.target_tmt, 0))::numeric, 2) AS gap_tmt
+FROM actuals a
+FULL OUTER JOIN targets t
+  ON {% for col in driver_columns %}
+  a."{{ col }}" = t."{{ col }}"{% if not loop.last %} AND {% endif %}
+  {% endfor %}
+{{ "\n" }}ORDER BY gap_tmt;

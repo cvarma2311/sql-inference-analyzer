@@ -35,10 +35,12 @@ SQL_KEYWORDS = {
     "when",
     "then",
     "else",
+    "with",
     "end",
     "limit",
     "offset",
     "round",
+    "coalesce",
     "sum",
     "count",
     "min",
@@ -64,24 +66,30 @@ class SqlValidator:
             for table in schema.get("tables", {}).values()
             for col in table.get("allowed_columns", [])
         }
-        self.allowed_aliases = {"actual_tmt", "target_tmt"}
+        self.allowed_aliases = {"actual_tmt", "target_tmt", "gap_tmt"}
         self.mandatory_constraints = load_mandatory_constraints()
 
     def validate(self, sql: str) -> ValidationResult:
         errors: list[str] = []
         sql_stripped = sql.strip()
 
-        if not sql_stripped.lower().startswith("select"):
-            errors.append("Query must start with SELECT.")
+        if not (
+            sql_stripped.lower().startswith("select")
+            or sql_stripped.lower().startswith("with")
+        ):
+            errors.append("Query must start with SELECT or WITH.")
 
         if not self._contains_mandatory_constraints(sql_stripped):
             errors.append("Missing mandatory constraints.")
 
         used_tables = self._extract_tables(sql_stripped)
+        cte_tables = self._extract_cte_names(sql_stripped)
         if not used_tables:
             errors.append("No table found in query.")
         else:
-            disallowed_tables = sorted(t for t in used_tables if t not in self.allowed_tables)
+            disallowed_tables = sorted(
+                t for t in used_tables if t not in self.allowed_tables and t not in cte_tables
+            )
             if disallowed_tables:
                 errors.append(f"Disallowed tables: {disallowed_tables}")
 
@@ -97,7 +105,7 @@ class SqlValidator:
             errors.append("Aggregation requires GROUP BY.")
 
         if not self._has_bounded_date_filter(sql_stripped):
-            errors.append("Missing bounded date filter (BETWEEN on date column).")
+            errors.append("Missing bounded date filter (BETWEEN on date column or fiscal_year filter).")
 
         return ValidationResult(valid=not errors, errors=errors)
 
@@ -117,8 +125,22 @@ class SqlValidator:
             tables.add(table_name.replace('"', ""))
         return tables
 
+    def _extract_cte_names(self, sql: str) -> set[str]:
+        names = set()
+        pattern = re.compile(
+            r"\bwith\s+([A-Za-z0-9_]+)\s+as\s*\(|,\s*([A-Za-z0-9_]+)\s+as\s*\(",
+            re.IGNORECASE,
+        )
+        for match in pattern.finditer(sql):
+            name = match.group(1) or match.group(2)
+            if name:
+                names.add(name)
+        return names
+
     def _extract_columns(self, sql: str) -> set[str]:
         columns = set()
+        cte_names = self._extract_cte_names(sql)
+        aliases = self._extract_table_aliases(sql)
         parsed = sqlparse.parse(sql)
         for statement in parsed:
             for token in statement.flatten():
@@ -128,6 +150,10 @@ class SqlValidator:
                 if value.isidentifier() and value.lower() not in SQL_KEYWORDS:
                     if value in self.allowed_tables:
                         continue
+                    if value in cte_names:
+                        continue
+                    if value in aliases:
+                        continue
                     if value.lower() == "public":
                         continue
                     columns.add(value)
@@ -135,10 +161,26 @@ class SqlValidator:
                     unquoted = value.strip('"')
                     if unquoted in self.allowed_tables:
                         continue
+                    if unquoted in cte_names:
+                        continue
+                    if unquoted in aliases:
+                        continue
                     if unquoted.lower() == "public":
                         continue
                     columns.add(unquoted)
         return columns
+
+    def _extract_table_aliases(self, sql: str) -> set[str]:
+        aliases = set()
+        pattern = re.compile(
+            r"\b(from|join)\s+([A-Za-z0-9_\"\.]+)\s+([A-Za-z0-9_]+)\b",
+            re.IGNORECASE,
+        )
+        for match in pattern.finditer(sql):
+            alias = match.group(3)
+            if alias and alias.lower() not in SQL_KEYWORDS:
+                aliases.add(alias)
+        return aliases
 
     def _uses_aggregation(self, sql: str) -> bool:
         return bool(re.search(r"\b(sum|count|min|max|avg)\s*\(", sql, re.IGNORECASE))
@@ -152,4 +194,8 @@ class SqlValidator:
                 unquoted_pattern, sql, re.IGNORECASE
             ):
                 return True
-        return False
+        fiscal_patterns = [
+            r'"fiscal_year"\s*(=|in|between)\s*',
+            r'\bfiscal_year\b\s*(=|in|between)\s*',
+        ]
+        return any(re.search(pattern, sql, re.IGNORECASE) for pattern in fiscal_patterns)

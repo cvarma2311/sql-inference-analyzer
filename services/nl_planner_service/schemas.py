@@ -7,7 +7,12 @@ class PlanRequest(BaseModel):
 
 class PlanResponse(BaseModel):
     objective: str
-    sbu: str
     time_range: str
-    breakdowns: list[str]
+    level: str
+    drilldown_path: list[str]
+    driver_levels: list[str]
+    filters: dict[str, str]
     queries: list[str]
+    fiscal_year: str | None = None
+    sbu: str | None = None
+    breakdowns: list[str] | None = None
