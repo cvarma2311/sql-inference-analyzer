@@ -9,3 +9,8 @@ target_tmt:
   column: TARGET_QTY_TMT
   aggregation: SUM
   description: Target sales in TMT.
+I got coname:
+  table: INDUSTRY_PERFORMANCE
+  column: CONAME
+  aggregation: NONE
+  description: Company name .
