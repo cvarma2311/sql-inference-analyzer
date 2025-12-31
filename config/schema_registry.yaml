@@ -158,3 +158,76 @@ tables:
       Zone_Region_Achievement: Achievement percentage by zone and region.
       Product_Achievement: Achievement percentage by product.
       engine_id: Engine identifier for data lineage.
+
+  INDUSTRY_PERFORMANCE:
+    allowed_columns:
+
+      - category
+      - sbu_name
+      - statename
+      - statecode
+      - distname
+      - dist
+      - distcode
+      - zone_name
+      - region_name
+      - orgrocd
+      - company_name
+      - comname
+      - coname
+      - comcode
+      - com_type
+      - psu_pvt
+      - productname
+      - productcode
+      - prod1
+      - prod1_1
+      - prod2
+      - fiscal_year
+      - month_name
+      - netweight_tmt
+      - total
+      - code
+      - newcode
+      - created_at
+      - updated_at
+    column_descriptions:
+      category: >
+        Industry category classification.
+        Mandatory rule: category must NOT contain letter 'O'.
+      sbu_name: Strategic Business Unit name.
+      statename: State name where sales occurred.
+      statecode: State code.
+      distname: District name.
+      dist: District short name or identifier.
+      distcode: District code.
+      zone_name: Zone name representing geographic grouping.
+      region_name: Region name within a zone.
+      orgrocd: Regional Office code.
+      company_name: Full company name.
+      comname: Short company name.
+      coname: Official registered company name.
+      comcode: Company code identifier.
+      com_type: Company type classification (PSU / Private).
+      psu_pvt: Indicator specifying whether company is PSU or Private.
+      productname: Product name (e.g., HSD, MS).
+      productcode: Product code.
+      prod1: Product hierarchy level 1.
+      prod1_1: Alternate or extended product hierarchy level 1.
+      prod2: Product hierarchy level 2.
+      fiscal_year: >
+        Fiscal year of the record in YYYY-YYYY format
+        (e.g., 2023-2024).
+      month_name: >
+        Fiscal month name.
+        Allowed values:
+        APR, MAY, JUN, JUL, AUG, SEP,
+        OCT, NOV, DEC, JAN, FEB, MAR.
+      netweight_tmt: >
+        Net weight measured in TMT (Thousand Metric Tonnes).
+        Default unit for industry analytics.
+      total: Aggregate or total value as provided in source data.
+      code: Internal reference or legacy code.
+      newcode: New or updated internal reference code.
+      created_at: Timestamp when the record was created.
+      updated_at: Timestamp when the record was last updated.

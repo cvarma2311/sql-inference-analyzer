@@ -1,0 +1,10 @@
+SELECT
+  "month_name",
+  ROUND(SUM("netweight_tmt")::numeric, 2) AS total_netweight_tmt
+FROM {{ db_schema }}."INDUSTRY_PERFORMANCE"
+WHERE
+  "sbu_name" = '{{ sbu }}'
+  AND {{ mandatory_constraints }}
+  AND "fiscal_year" = '{{ fiscal_year }}'
+GROUP BY "month_name"
+ORDER BY "month_name";

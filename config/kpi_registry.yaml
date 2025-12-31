@@ -9,3 +9,21 @@ target_tmt:
   column: TARGET_QTY_TMT
   aggregation: SUM
   description: Target sales in TMT.
+
+  coname:
+  table: INDUSTRY_PERFORMANCE
+  column: CONAME
+  aggregation: NONE
+  description: Company name 
+  
+  fiscal_year:
+  table: INDUSTRY_PERFORMANCE
+  column: FISCAL_YEAR
+  aggregation: NONE
+  description: Fiscal year in YYYY-YYYY format..
+
+  netweight_tmt:
+  table: INDUSTRY_PERFORMANCE
+  column: NETWEIGHT_TMT
+  aggregation: SUM
+  description: Net weight in TMT.
