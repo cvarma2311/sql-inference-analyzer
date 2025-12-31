@@ -1,0 +1,19 @@
+SELECT
+  {% for col in driver_columns -%}
+  "{{ col }}"{% if not loop.last %}, {% endif %}
+  {%- endfor %},
+  "sbu_name",
+  ROUND(SUM("netweight_tmt")::numeric, 2) AS total_netweight_tmt
+FROM {{ db_schema }}."INDUSTRY_PERFORMANCE"
+WHERE
+  {{ mandatory_constraints }}
+  AND "fiscal_year" = '{{ fiscal_year }}'
+  {% for col, value in filters.items() %}
+  AND "{{ col }}" = '{{ value }}'
+  {% endfor %}
+GROUP BY
+  {% for col in driver_columns -%}
+  "{{ col }}"{% if not loop.last %}, {% endif %}
+  {%- endfor %},
+  "sbu_name"
+ORDER BY total_netweight_tmt DESC;

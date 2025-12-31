@@ -1,0 +1,27 @@
+SELECT
+  {% for col in driver_columns -%}
+  "{{ col }}"{% if not loop.last %}, {% endif %}
+  {%- endfor %},
+  "sbu_name",
+  "coname",
+  "month_name",
+  "fiscal_year",
+  "productname",
+  ROUND(SUM("netweight_tmt")::numeric, 2) AS total_netweight_tmt,
+  ROUND((SUM("netweight_tmt") / SUM(SUM("netweight_tmt")) OVER (PARTITION BY {% for col in driver_columns -%}"{{ col }}"{% if not loop.last %}, {% endif %}{% endfor %})) * 100, 2) AS market_share_percent
+FROM {{ db_schema }}."INDUSTRY_PERFORMANCE"
+WHERE
+  {{ mandatory_constraints }}
+  {% for col, value in filters.items() %}
+  AND "{{ col }}" = '{{ value }}'
+  {% endfor %}
+GROUP BY
+  {% for col in driver_columns -%}
+  "{{ col }}"{% if not loop.last %}, {% endif %}
+  {%- endfor %},
+  "sbu_name",
+  "coname",
+  "month_name",
+  "fiscal_year",
+  "productname"
+ORDER BY total_netweight_tmt DESC;

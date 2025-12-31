@@ -5,3 +5,4 @@ AND "SBU_Name" NOT IN (
   'Renewable Energy',
   'Visakh Ref'
 )
+AND "category" NOT LIKE '%O%'
