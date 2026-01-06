@@ -16,7 +16,7 @@ SCHEMA_DESCRIPTIONS = {
         'columns': {
             'bu': "Business Unit (e.g., region or division)",
             'sap_id': "SAP identifier for the entity/location",
-            'sop_id': "SOP ID related to the alert", 
+            'sop_id': "SOP ID related to the alert",
             'location_name': "Name of the location where alert originated",
             'severity': "Alert severity. Valid values: 'CRITICAL', 'HIGH', 'MEDIUM', 'LOW'.",
             'alert_category': "Category of the alert. Valid values: 'Device Offline', 'Device Tamper', 'Power Disconnect', 'SOS', 'Over Speed'.",
@@ -28,7 +28,7 @@ SCHEMA_DESCRIPTIONS = {
             'interlock_name': "Name of interlock device",
             'interlock_id': "ID of interlock device",
             'device_id': "Device identifier",
-            'equipment_id': "Equipment identifier", 
+            'equipment_id': "Equipment identifier",
             'sensor_id': "Sensor identifier",
             'device_type': "Type of device",
             'equipment_type': "Type of equipment",
@@ -37,7 +37,7 @@ SCHEMA_DESCRIPTIONS = {
             'device_msg': "Message from device",
             'vehicle_number': "Vehicle ID associated with alert",
             'violation_type': "Type of violation detected",
-            'clear_count': "Whether count has been cleared", 
+            'clear_count': "Whether count has been cleared",
             'maintenance_time': "Time required for maintenance",
             'tt_load_number': "Alternative vehicle/TT load number",
             'is_flagged_false': "Whether alert is flagged as false",
@@ -132,7 +132,7 @@ SCHEMA_DESCRIPTIONS = {
             'no_halt_zone_count': "Count of no-halt zone violations.",
             'device_offline_count': "Count of device offline incidents.",
             'device_tamper_count': "Count of device tampering incidents.",
-            'continuous_driving_count': "Count of continuous driving violations.", 
+            'continuous_driving_count': "Count of continuous driving violations.",
             'approved_by': "Person who approved",
             'auto_unblock': "Auto unblock status",
             'alert_id': "Alert identifier",
@@ -152,17 +152,17 @@ SCHEMA_DESCRIPTIONS = {
             'location_name': "Location name",
             'route_deviation_count_orig': "Original route deviation count before correction",
             'base_location_id': "Home location ID",
-            'base_zone': "Home zone", 
+            'base_zone': "Home zone",
             'base_region': "Home region",
             'base_location_name': "Home location name",
             'destination_code': "Target destination code"
         }
     },
     'vts_ongoing_trips': {
-        'description': "Live tracking of trips that are currently in progress. Use for questions about 'now', 'current status', or 'live location'.",
+        'description': "Live tracking of trips that are currently in progress. This is the ONLY source for 'driver_name'. For driver queries, you MUST join to this table using 'tt_number'. This table does NOT contain 'transporter_code'. Join to 'vts_truck_master' if you need transporter code.",
         'columns': {
             'violation_type': "Type of violation",
-            'event_start_datetime': "Event start datetime. Canonical time column for this table.", 
+            'event_start_datetime': "Event start datetime. Canonical time column for this table.",
             'event_end_datetime': "Event end datetime",
             'sap_id': "SAP identifier",
             'region': "Geographic region",
@@ -187,7 +187,7 @@ SCHEMA_DESCRIPTIONS = {
             'vehicle_location': "Vehicle location description",
             'id': "Primary key ID",
             'created_at': "Record creation timestamp",
-            'updated_at': "Record update timestamp", 
+            'updated_at': "Record update timestamp",
             'entity_id': "Entity identifier",
             'bu': "Business Unit"
         }
@@ -197,7 +197,7 @@ SCHEMA_DESCRIPTIONS = {
         'columns': {
             'seq_key': "Sequence key",
             'ukid': "Unique key identifier",
-            'mandt': "Mandant/client", 
+            'mandt': "Mandant/client",
             'truck_no': "Vehicle ID/Truck number. The canonical Vehicle ID for joining with other tables.",
             'sap_id': "SAP identifier",
             'vehicle_type': "Type of vehicle",
@@ -233,7 +233,7 @@ SCHEMA_DESCRIPTIONS = {
             'id': "Primary key ID",
             'sap_id': "SAP identifier",
             'trucknumber': "Truck/vehicle number. Vehicle ID in this table.",
-            'lockid1': "First lock ID", 
+            'lockid1': "First lock ID",
             'lockid2': "Second lock ID",
             'loadnumber': "Load number",
             'invoicenumber': "Invoice number associated with the trip.",
@@ -250,10 +250,10 @@ SCHEMA_DESCRIPTIONS = {
         }
     },
     'tt_risk_score': {
-        'description': "Calculated risk scores for each individual vehicle.",
+        'description': "Calculated risk scores for each individual vehicle. CRITICAL: For time-based analysis (e.g., 'last month', 'trend'), you MUST join this table with 'completed_trips_risk_score' on 'tt_number' and filter using 'completed_trips_risk_score.scheduled_trip_end_datetime'.",
         'columns': {
             'tt_number': "TT/vehicle number. Vehicle ID in this table.",
-            'transporter_code': "Transporter code", 
+            'transporter_code': "Transporter code",
             'transporter_name': "Transporter company name",
             'total_trips': "Total number of trips",
             'risk_score': "The overall risk score for the vehicle.",
@@ -264,16 +264,37 @@ SCHEMA_DESCRIPTIONS = {
         }
     },
     'transporter_risk_score': {
-        'description': "Aggregated risk scores for each transporter fleet.",
+        'description': "Aggregated risk scores for each transporter fleet. CRITICAL: For time-based analysis (e.g., 'last month', 'trend'), you MUST join this table with 'completed_trips_risk_score' on 'transporter_code' and filter using 'completed_trips_risk_score.scheduled_trip_end_datetime'.",
         'columns': {
             'transporter_code': "Unique code for the transporter.",
-            'transporter_name': "Transporter company name", 
+            'transporter_name': "Transporter company name",
             'total_trips': "Total number of trips",
             'device_removed': "Device removed risk score",
             'power_disconnect': "Power disconnect risk score",
             'route_deviation': "Route deviation risk score",
             'stoppage_violation': "Stoppage violation risk score",
             'risk_score': "The overall risk score for the entire transporter fleet."
+        }
+    },
+    'completed_trips_risk_score': {
+        'description': "Historical risk scores for individual completed trips. Use this table for analyzing risk trends of past trips over time.",
+        'columns': {
+            'trip_name': "The name or identifier of the trip.",
+            'trip_id': "Unique integer ID for the trip.",
+            'risk_score': "The overall risk score calculated for this specific completed trip.",
+            'device_removed': "Risk component score related to device removal during the trip.",
+            'power_disconnect': "Risk component score related to power disconnection during the trip.",
+            'route_deviation': "Risk component score related to route deviation during the trip.",
+            'stoppage_violation': "Risk component score related to stoppage violations during the trip.",
+            'total_combo_count': "Count of combined violation types contributing to risk.",
+            'scheduled_trip_start_datetime': "The planned start time of the trip.",
+            'scheduled_trip_end_datetime': "The planned end time of the trip. This is the canonical time column for historical analysis.",
+            'invoice_no': "Invoice number associated with the trip.",
+            'tt_number': "The vehicle number (truck/tanker number) for the trip.",
+            'transporter_code': "The unique code for the transporter.",
+            'route_no': "The planned route number for the trip.",
+            'zone': "The geographical zone of the trip.",
+            'location_name': "The primary location name associated with the trip."
         }
     }
 }
@@ -392,14 +413,15 @@ QUERY_TEMPLATES = {
             'tt_risk_score'::TEXT AS "Source Table",
             'Risk Score'::TEXT AS "Data Table",
             'Vehicle Risk Score: ' || COALESCE(trs.risk_score::TEXT, 'N/A') AS "Event Type",
-            CURRENT_TIMESTAMP AS "Event Time", -- tt_risk_score has no timestamp
+            COALESCE(ctrs.scheduled_trip_end_datetime::TIMESTAMP, CURRENT_TIMESTAMP) AS "Event Time",
             md.master_location AS "Location Info",
             NULL::TEXT AS "Invoice Number",
             'risk_score: ' || trs.risk_score::TEXT AS "Additional Detail",
             trs.tt_number::TEXT AS "vehicle_identifier"
         FROM tt_risk_score trs
         JOIN master_data md ON trs.tt_number ILIKE md.truck_no
-        WHERE trs.tt_number ILIKE '{vehicle_id}' -- Use exact ILIKE
+        LEFT JOIN completed_trips_risk_score ctrs ON ctrs.tt_number = trs.tt_number
+        WHERE trs.tt_number ILIKE '{vehicle_id}' {time_filter_ctrs} -- Use exact ILIKE
 
         UNION ALL
 
@@ -408,21 +430,20 @@ QUERY_TEMPLATES = {
             'transporter_risk_score'::TEXT AS "Source Table",
             'Transporter Risk'::TEXT AS "Data Table",
             'Transporter Risk Score: ' || COALESCE(trs.risk_score::TEXT, 'N/A') AS "Event Type",
-            CURRENT_TIMESTAMP AS "Event Time",
+            COALESCE(ctrs.scheduled_trip_end_datetime::TIMESTAMP, CURRENT_TIMESTAMP) AS "Event Time",
             md.master_location::TEXT AS "Location Info",
             NULL::TEXT AS "Invoice Number",
             'transporter_code: ' || COALESCE(trs.transporter_code::TEXT, 'N/A') || ', risk_score: ' || COALESCE(trs.risk_score::TEXT, 'N/A') AS "Additional Detail",
             md.truck_no::TEXT AS "vehicle_identifier"
         FROM master_data md
-        LEFT JOIN transporter_risk_score trs ON trs.transporter_code = md.master_transporter_code
+        LEFT JOIN transporter_risk_score trs ON md.master_transporter_code = trs.transporter_code
+        LEFT JOIN completed_trips_risk_score ctrs ON trs.transporter_code = ctrs.transporter_code {time_filter_ctrs}
     ) AS all_data
     ORDER BY "Event Time" DESC
     LIMIT 100;
     """,
 
 
-
-    
     "compare_vehicle_risk_scores": """
     SELECT
         'tt_risk_score' AS "Data Table",
@@ -486,7 +507,7 @@ def get_comprehensive_query_for_vehicle(vehicle_id: str) -> str:
     """DEPRECATED: Use get_comprehensive_query_for_training instead."""
     return get_comprehensive_query_for_training(vehicle_id=vehicle_id)
  
-def get_comprehensive_query_for_training(vehicle_id=None, rules=None, query_type=None, interval_sql=None, specific_date=None, **kwargs) -> str:
+def get_comprehensive_query_for_training(vehicle_id=None, query_type=None, interval_sql=None, specific_date=None, **kwargs) -> str:
     """
     Generates complex SQL queries for training data or runtime generation.
     Handles both vehicle timeline and performance improvement queries.
@@ -496,7 +517,7 @@ def get_comprehensive_query_for_training(vehicle_id=None, rules=None, query_type
         vid = vehicle_id or kwargs.get("vehicle_id")
         if vid:
             # Initialize empty filters
-            time_filter_vah, time_filter_a, time_filter_vot, time_filter_tam = "", "", "", ""
+            time_filter_vah, time_filter_a, time_filter_vot, time_filter_tam, time_filter_ctrs = "", "", "", "", ""
 
             if specific_date:
                 # Specific date filter takes precedence and is applied to each subquery
@@ -504,19 +525,22 @@ def get_comprehensive_query_for_training(vehicle_id=None, rules=None, query_type
                 time_filter_a = f"AND a.created_at::DATE = '{specific_date}'"
                 time_filter_vot = f"AND vot.created_at::DATE = '{specific_date}'"
                 time_filter_tam = f"AND tam.createdat::DATE = '{specific_date}'"
+                time_filter_ctrs = f"AND ctrs.scheduled_trip_end_datetime::DATE = '{specific_date}'"
             elif interval_sql:
                 # Fallback to interval if no specific date
-                time_filter_vah = f"AND vah.vts_end_datetime >= CURRENT_DATE - {interval_sql}"
-                time_filter_a = f"AND a.created_at >= CURRENT_DATE - {interval_sql}"
-                time_filter_vot = f"AND vot.created_at >= CURRENT_DATE - {interval_sql}"
-                time_filter_tam = f"AND tam.createdat >= CURRENT_DATE - {interval_sql}"
+                time_filter_vah = f" AND vah.vts_end_datetime >= CURRENT_DATE - {interval_sql}"
+                time_filter_a = f" AND a.created_at >= CURRENT_DATE - {interval_sql}"
+                time_filter_vot = f" AND vot.created_at >= CURRENT_DATE - {interval_sql}"
+                time_filter_tam = f" AND tam.createdat >= CURRENT_DATE - {interval_sql}"
+                time_filter_ctrs = f" AND ctrs.scheduled_trip_end_datetime >= CURRENT_DATE - {interval_sql}"
 
             return QUERY_TEMPLATES["vehicle_timeline"].format(
                 vehicle_id=vid,
                 time_filter_vah=time_filter_vah,
                 time_filter_a=time_filter_a,
                 time_filter_vot=time_filter_vot,
-                time_filter_tam=time_filter_tam
+                time_filter_tam=time_filter_tam,
+                time_filter_ctrs=time_filter_ctrs
             )
             
     # Handle No Data Reporting (Anomaly Detection)
@@ -622,22 +646,23 @@ def is_vehicle_id_query(question: str) -> Optional[str]:
     
     Pattern: 2 letters, 2 digits, 1-2 letters, 4 digits. e.g., RJ19GD6553, HR46F0066
     """
-    # Trim whitespace and quotes
     cleaned_question = question.strip().strip("'\"")
     
-    # Regex to match common Indian vehicle number plates
     vehicle_id_pattern = r'\b([A-Z]{2}\d{1,2}[A-Z]{1,2}\d{4})\b'
     vehicle_match = re.search(vehicle_id_pattern, cleaned_question, re.IGNORECASE)
 
     if not vehicle_match:
         return None
 
-    # Keywords that indicate a request for a comprehensive vehicle timeline.
-    timeline_keywords = ['data', 'details', 'information', 'history', 'summary', 'report', 'everything', 'timeline', 'know about']
+    timeline_keywords = ['data', 'details', 'information', 'history', 'summary', 'report', 'everything', 'timeline', 'know about', 'complete', 'profile', 'vehicle data', 'last', 'past', 'days', 'month', 'week', 'year', 'today', 'yesterday']
     
-    # Trigger if the question is just the vehicle ID, or if it contains timeline keywords.
-    if re.fullmatch(vehicle_id_pattern, cleaned_question, re.IGNORECASE) or any(keyword in cleaned_question.lower() for keyword in timeline_keywords):
-        return vehicle_match.group(1)
+    # FIX: The original re.fullmatch was failing due to word boundaries (\b).
+    # This new logic is more robust: it checks if the length of the matched vehicle ID
+    # is the same as the length of the entire cleaned question string.
+    is_full_match = len(vehicle_match.group(0)) == len(cleaned_question)
+
+    if is_full_match or any(keyword in cleaned_question.lower() for keyword in timeline_keywords):
+        return vehicle_match.group(1).upper()
     
     return None
 
@@ -676,6 +701,8 @@ QUESTION_SYNONYMS = {
 
     # Normalize various ways of asking for a vehicle report
     r"\b(details|data|information|history|summary|report)\s+(about|for)\b": "comprehensive report for",
+    r"\b(complete|full|all)\s+(data|details|info|information)\b": "comprehensive report",
+    r"\bvehicle data\b": "comprehensive report",
     r"\bviolations\b": "total violations",
 }
 
@@ -760,27 +787,28 @@ SQL_REPLACEMENT_PATTERNS = {
     r"\bviolation count\b": "stoppage_violations_count + route_deviation_count + speed_violation_count + night_driving_count + device_offline_count + device_tamper_count + continuous_driving_count + no_halt_zone_count + main_supply_removal_count",
 }
 
-
 # ===== NEW: CONCEPT-BASED TABLE DETECTION LOGIC =====
 # This is a more robust way to identify necessary tables for complex queries.
 concept_patterns = {
     "risk": [r"\brisk\b", r"\brisky\b", r"\brisk score\b"], # Matches risk concepts
-    "violation": [r"\bviolation\b", r"\bevent\b", r"\bincident\b"], # General violation term
-    "alert": [r"\balert\b"], # Specifically for the 'alerts' table (open/closed status)
-    "transporter": [r"\btransporter\b", r"\bcarrier\b"], # Matches transporter entities
-    "driver": [r"\bdriver\b"], # Matches driver entities
-    "trip": [r"\btrip\b", r"\bjourney\b"], # General trip concept
+    "violation": [r"\bviolations?\b", r"\bevents?\b", r"\bincidents?\b"], # General violation term
+    "alert": [r"\balerts?\b"], # Specifically for the 'alerts' table (open/closed status)
+    "driver": [r"\bdrivers?\b"], # Matches driver entities
+    # Use negative lookahead to prevent matching "completed trips", "past trips", etc.
+    "trip": [r"\b(?!completed\s|past\s|finished\s)trips?\b", r"\bjourneys?\b"], # General trip concept
     "live_status": [r"\bcurrent\b", r"\bongoing\b", r"\blive\b", r"\bwhere is\b", r"\bright now\b"], # For live data
-    "audit": [r"\baudit\b", r"\bswipe\b", r"\bemlock\b", r"\block\b"], # For trip audit data
-    "geospatial": [r"\blocation\b", r"\bzone\b", r"\bregion\b", r"\bhotspot\b", r"\barea\b"], # Geospatial concepts
+    "completed_trip": [r"\bcompleted\s+trips?\b", r"\bpast\s+trips?\b", r"\bfinished\s+trips?\b"], # For historical trip analysis
+    "audit": [r"\baudits?\b", r"\bswipes?\b", r"\bemlocks?\b", r"\blocks?\b"], # For trip audit data
+    "geospatial": [r"\blocations?\b", r"\bzones?\b", r"\bregions?\b", r"\bhotspots?\b", r"\bareas?\b"], # Geospatial concepts
     "performance": [r"\bperformance\b", r"\bimprov(e|ing)\b", r"\btrend\b", r"\bcomparison\b", r"\brate\b", r"\befficiency\b"], # Performance concepts
     "device_health": [r"device", r"tamper", r"offline", r"power", r"supply"], # For device-related violations
     "driver_behavior": [r"speeding", r"speed", r"stoppage", r"fatigue", r"continuous driving", r"night driving"], # For driver actions
-    "route_compliance": [r"deviation", r"route", r"stoppage", r"halt"], # For adherence to planned routes
-    "time_analysis": [r"daily", r"weekly", r"monthly", r"hourly", r"trend", r"over time", r"history of", r"timeline of", r"seasonality", "by month", "by day"], # For time-series analysis
+    "route_compliance": [r"deviation", r"route", r"stoppage", "halt"], # For adherence to planned routes
+    "time_analysis": [r"daily", r"weekly", "monthly", r"hourly", r"trend", r"over time", r"history of", r"timeline of", r"seasonality", "by month", "by day", r"\bupdated\b", r"\bchanged\b", r"\bmodified\b", r"in the last", r"past \d+", r"recent"],
     "data_quality": [r"missing", r"incorrect", r"invalid", r"orphan", r"mismatch"], # For data audit questions,
     "master_data_filter": [r"\b(not\s+marked\s+as\s+)?blacklisted\b", r"\bownership\b", r"\btransporter\b"],
     "no_data_anomaly": [r"not reported any data", r"no data from", r"silent vehicles"],
+    "schema_inquiry": [r"columns?", r"schema", r"structure", r"describe", r"fields?"], # For schema questions
 }
 
 concept_to_table_map = {
@@ -791,6 +819,7 @@ concept_to_table_map = {
     "live_status": "vts_ongoing_trips", # Live status comes from ongoing trips
     "audit": "vts_tripauditmaster", # Audit concepts map to the audit master
     "performance": "vts_alert_history", # Performance is usually measured by historical violations/events
+    "completed_trip": "completed_trips_risk_score", # Historical trip risk
     "device_health": "vts_alert_history", # Device health violations are in alert history
     "driver_behavior": "vts_alert_history", # Driver behavior violations are in alert history
     "route_compliance": "vts_alert_history", # Route compliance violations are in alert history
@@ -799,23 +828,29 @@ concept_to_table_map = {
     "no_data_anomaly": "vts_truck_master",
     "sap_filter": "vts_truck_master", # Explicit mapping for sap_id
     "schema_inquiry": "information_schema.columns", # Special case
-    # 'transporter', 'driver', 'geospatial', 'data_quality' are contextual and primarily used to trigger joins.
+    # New Mappings for Robustness
+    "driver": "vts_ongoing_trips", # Drivers are primarily tracked in ongoing trips
+    "transporter": "vts_truck_master", # Transporter details are in the truck master
+    "geospatial": "vts_truck_master", # Zones and Regions are master data properties
 }
 
 concept_combination_rules = {
     # Core Join Logic
     frozenset(["risk", "transporter"]): "transporter_risk_score", # If risk + transporter, MUST use transporter_risk_score
     frozenset(["violation", "transporter"]): "vts_truck_master", # To link violations to a transporter name
-    frozenset(["violation", "driver"]): "vts_truck_master", # To link violations to a driver name (via truck master)
+    frozenset(["violation", "driver"]): "vts_ongoing_trips", # To get driver_name
     frozenset(["alert", "transporter"]): "vts_truck_master", # To link open alerts to a transporter name
+    frozenset(["alert", "driver"]): "vts_ongoing_trips", # To get driver_name for an alert
     frozenset(["live_status", "risk"]): "tt_risk_score", # To get risk for a live vehicle
     frozenset(["audit", "driver"]): "vts_ongoing_trips", # To link audit events to a driver (via invoice join, as driver is only in ongoing)
     frozenset(["audit", "transporter"]): "vts_truck_master", # To link audit events to a transporter
-
+    frozenset(["completed_trip", "risk"]): "completed_trips_risk_score", # Explicitly use the new table
+    frozenset(["risk", "time_analysis"]): "completed_trips_risk_score", # CRITICAL: Historical risk queries must use the completed trips table
+    
     # Advanced Analytical Joins
     frozenset(["performance", "transporter"]): "vts_truck_master", # To analyze performance by transporter
-    frozenset(["performance", "driver"]): "vts_truck_master", # To analyze performance by driver
-    frozenset(["driver_behavior", "driver"]): "vts_truck_master", # To analyze a specific driver's behavior
+    frozenset(["performance", "driver"]): "vts_ongoing_trips", # To analyze performance by driver
+    frozenset(["driver_behavior", "driver"]): "vts_ongoing_trips", # To analyze a specific driver's behavior
     frozenset(["device_health", "risk"]): "tt_risk_score", # To correlate device events with vehicle risk
     frozenset(["geospatial", "risk"]): "tt_risk_score", # To find risk by location (e.g., riskiest zones)
     frozenset(["sap_filter", "risk"]): "vts_truck_master", # CRITICAL: sap_id is in master, so must join with master for risk
@@ -895,10 +930,17 @@ SQL_RULES = {
             "transporter_column": "transporter_name",
             "fallback_datetime_column": "last_changed_date"
         }
-    },
-
-    
-    "valid_tables": ['vts_alert_history', 'vts_truck_master', 'vts_ongoing_trips', 'alerts', 'vts_tripauditmaster','tt_risk_score','transporter_risk_score'],
+    },    
+    "valid_tables": [
+        'vts_alert_history', 
+        'vts_truck_master', 
+        'vts_ongoing_trips', 
+        'alerts', 
+        'vts_tripauditmaster',
+        'tt_risk_score',
+        'transporter_risk_score',
+        'completed_trips_risk_score' # Added new table
+    ],
     "invalid_data_values": ['n/a', 'null', 'none', 'unknown'],
     # This provides keywords for each table, used as a fallback for table detection.
     # It's now more comprehensive and aligned with the full schema.
@@ -909,7 +951,8 @@ SQL_RULES = {
         "vts_truck_master": ["master", "transporter name", "truck no", "vehicle type", "ownership", "capacity", "compartments", "reference"],
         "vts_tripauditmaster": ["audit", "swipe", "emlock", "lock", "seal", "security", "check"],
         "tt_risk_score": ["vehicle risk", "risk score", "safety score", "driving score"],
-        "transporter_risk_score": ["transporter risk", "carrier risk", "fleet risk"]
+        "transporter_risk_score": ["transporter risk", "carrier risk", "fleet risk"],
+        "completed_trips_risk_score": ["completed trip", "past trip", "historical trip risk"] # Added keywords for new table
     },
 
     # Add the new concept-based rules to the main SQL_RULES dictionary
@@ -927,7 +970,7 @@ SQL_RULES = {
         "device_health": [r"device", r"tamper", r"offline", r"power", r"supply", r"battery", r"voltage", r"health", r"disconnect", r"gps status"],
         "driver_behavior": [r"speeding", r"speed", r"stoppage", r"fatigue", r"continuous driving", r"night driving", r"harsh", r"braking", r"acceleration", r"driving style"],
         "route_compliance": [r"deviation", r"route", r"stoppage", r"halt", r"detour", r"path", r"geofence"],
-        "time_analysis": [r"daily", r"weekly", r"monthly", r"hourly", r"trend", r"over time", r"last \d+ days?", r"history", r"timeline", r"period", r"duration", r"seasonality"],
+        "time_analysis": [r"daily", r"weekly", r"monthly", r"hourly", r"trend", r"over time", r"last \d+ days?", r"last \d+ months?", r"last \d+ years?", r"past \d+ days?", r"past \d+ months?", r"history", r"timeline", r"period", r"duration", r"seasonality", r"last month", r"last year", r"last week", r"past month", r"past year"],
         "data_quality": [r"missing", r"incorrect", r"invalid", r"orphan", r"mismatch", r"null", r"empty", r"quality", r"integrity", r"completeness", r"discrepancy"],
         "sap_filter": [r"\bsap_id\b", r"\bsap id\b", r"\bsap\b", r"\bplant\b"],
         "schema_inquiry": [r"columns?", r"schema", r"structure", r"describe", r"datatypes?", r"types?", r"fields?", r"table definition", r"metadata"],
@@ -991,9 +1034,63 @@ SQL_RULES = {
             "vehicle_id": "tt_number",
             "transporter_code": "transporter_code"
         },
+        "completed_trips_risk_score": {
+            "vehicle_id": "tt_number",
+            "transporter_code": "transporter_code"
+        },
         "transporter_risk_score": {
             "transporter_code": "transporter_code"
         },
+    },
+
+    # =============================================================================================
+    # ===== NEW: DATA MODEL FOR ROBUST VALIDATION =====
+    # =============================================================================================
+    # This defines the "physics" of the database - what can join to what, and how.
+    # The validator uses this to reject hallucinated or dangerous joins.
+    "DATA_MODEL": {
+        "master_entities": {
+            "vehicle": {
+                "primary_table": "vts_truck_master",
+                "primary_key": "truck_no",
+                "identifier_map": {
+                    "vts_alert_history": "tl_number",
+                    "vts_ongoing_trips": "tt_number",
+                    "alerts": "vehicle_number",
+                    "tt_risk_score": "tt_number",
+                    "vts_tripauditmaster": "trucknumber"
+                }
+            },
+            "transporter": {
+                "primary_table": "vts_truck_master",
+                "primary_key": "transporter_code",
+                "columns": ["transporter_name", "transporter_code"]
+            }
+        },
+        "relationships": {
+            # All transactional tables must join to Master for context
+            "vts_alert_history -> vts_truck_master": "JOIN vts_truck_master vtm ON vah.tl_number = vtm.truck_no",
+            "vts_ongoing_trips -> vts_truck_master": "JOIN vts_truck_master vtm ON vot.tt_number = vtm.truck_no",
+            "alerts -> vts_truck_master": "JOIN vts_truck_master vtm ON a.vehicle_number = vtm.truck_no",
+            "tt_risk_score -> vts_truck_master": "JOIN vts_truck_master vtm ON trs.tt_number = vtm.truck_no",
+            "vts_tripauditmaster -> vts_truck_master": "JOIN vts_truck_master vtm ON tam.trucknumber = vtm.truck_no",
+            # Risk to Transporter
+            "vts_truck_master -> transporter_risk_score": "JOIN transporter_risk_score trs ON vtm.transporter_code = trs.transporter_code",
+            
+            # === NEW: Time-Based Risk Analysis Joins ===
+            # Connects historical trips (with dates) to snapshot risk scores
+            "completed_trips_risk_score -> vts_truck_master": "JOIN vts_truck_master vtm ON ctrs.tt_number = vtm.truck_no",
+            "completed_trips_risk_score -> transporter_risk_score": "JOIN transporter_risk_score trs ON ctrs.transporter_code = trs.transporter_code", 
+            "completed_trips_risk_score -> tt_risk_score": "JOIN tt_risk_score trs_vehicle ON ctrs.tt_number = trs_vehicle.tt_number"
+        },
+        "forbidden_joins": [
+            # N-to-N aggregations that cause row explosion if joined directly without master
+            {"alerts", "vts_alert_history"}, 
+            {"tt_risk_score", "vts_alert_history"},
+            {"vts_ongoing_trips", "vts_alert_history"},
+            {"alerts", "tt_risk_score"}
+        ],
+        "aggregation_rule": "IF aggregating violations (SUM/COUNT), ALWAYS GROUP BY vehicle_identifier AND ensure NO Cartesian joins."
     },
     
 
@@ -1280,10 +1377,19 @@ CRITICAL SCHEMA RULES - BASED ON ACTUAL DATABASE:
 
 ===== INTENT DISAMBIGUATION (Schema vs. Data vs. Documentation) =====
 - **Schema Inquiry**: If the user asks for "columns", "schema", "structure", "fields", or "describe table", the query is about the database's design. The SQL should query `information_schema.columns`. This is a high-priority rule.
+
+===== MANDATORY JOIN LOGIC FOR TIME-BASED RISK QUERIES =====
+- **ABSOLUTE RULE**: If a question combines 'risk' or 'risk score' with a time period (like 'last 3 months', 'in June', 'yesterday'), you MUST use the `completed_trips_risk_score` table. This is the ONLY table with a datetime column for historical risk analysis.
+- **JOIN PATH**: To answer such a question, you MUST `JOIN completed_trips_risk_score` with `tt_risk_score` (on `tt_number`) or `transporter_risk_score` (on `transporter_code`). Use `completed_trips_risk_score.scheduled_trip_end_datetime` for the date filter.
+
   - Example: "what are the columns in alerts" -> SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'alerts';
 - **Data Inquiry**: If the user asks for the data *itself* (e.g., "what are the alerts", "show me alerts"), the query is about the data within the tables. The SQL should query the actual table (e.g., `alerts`).
   - Example: "what are the alerts" -> SELECT * FROM alerts WHERE alert_section = 'VTS' LIMIT 10;
 - **Documentation Inquiry**: If the user asks "what is", "explain", "how is", or "what is the purpose of", they are likely asking for a definition, not data. The system should provide a textual answer instead of generating SQL. This is handled by a 'no-SQL' mode.
+- **Meta-Queries on Table Contents**: If the user asks "which tables contain/store X information", the query is about the database's design. The SQL should query `information_schema.columns` to find columns that match 'X'.
+- **Simplicity First**: Use the minimum number of tables and joins necessary. For a simple lookup on one table (e.g., 'find vehicles with risk score > 70'), do NOT join other tables unless explicitly asked for more information (like 'transporter name').
+-**Data Table is not a column and its a alias name.
+
 
 ===== JOIN RULES (How to connect tables) =====
 - **CRITICAL**: The `vts_truck_master` table is for master data. Use it in `JOIN` clauses to get details like `transporter_name` for a vehicle found in another table (e.g., `vts_alert_history`). AVOID using it as the main `FROM` table unless the query is specifically about master data itself (e.g., 'list all transporters').
@@ -1390,10 +1496,15 @@ CRITICAL SCHEMA RULES - BASED ON ACTUAL DATABASE:
 - "emlock trip" is in vts_tripauditmaster, column isemlocktrip ('Y' or 'N').
 - "swipe out" failure is in vts_tripauditmaster, columns swipeoutl1 or swipeoutl2 ('False') means alerts or violation happened.
 - `vts_alert_history` DOES NOT have a `violation_severity` column. Severity is ONLY in the `alerts` table.
--"ALWAYS include alert_section = 'VTS' for alerts table queries"
+        - "ALWAYS include alert_section = 'VTS' for alerts table queries"
 - `vts_alert_history` DOES NOT have a `swipe_out_failure` column. Swipe data is ONLY in `vts_tripauditmaster`. 
--tt_risk_score table has a `risk_score` column.
+- tt_risk_score table has a `risk_score` column.
 -transporter_risk_score table has a `risk_score` column.
+-**CRITICAL**: To query `tt_risk_score` or `transporter_risk_score` over a time period (e.g., 'last 30 days'), you MUST JOIN with `completed_trips_risk_score` on `transporter_code` or `tt_number` and use `completed_trips_risk_score.scheduled_trip_end_datetime` for the time filter. The risk score tables themselves do not have a date column.
+-**CRITICAL**: To query `tt_risk_score` or `transporter_risk_score` over a time period (e.g., 'last 30 days'), you MUST JOIN with `completed_trips_risk_score` on `transporter_code` or `tt_number` and use `completed_trips_risk_score.scheduled_trip_end_datetime` for the time filter. The risk score tables themselves do not have a date column.
+-Use transporter_code column from completed_trips_risk_score into tt_risk_score and transporter_risk_score tables for using of scheduled_trip_end_datetime for datetime in tt_risk_score and transporter_risk_score tables.
+
+
 
 
 ===== JOINING & DATA FALLBACK =====
@@ -1421,6 +1532,9 @@ ACTUAL COLUMN MAPPINGS:
 "vehicle number" -> truck_no (vts_truck_master)
 "vehicle number" -> trucknumber (vts_tripauditmaster)
 
+"driver name" -> driver_name (vts_ongoing_trips)
+"a.driver_name" -> vot.driver_name (vts_ongoing_trips)
+
 "stoppage violation count" -> stoppage_violations_count (vts_alert_history)
 "route deviation count" -> route_deviation_count (vts_alert_history)
 "speed violation count" -> speed_violation_count (vts_alert_history)
@@ -1430,15 +1544,16 @@ ACTUAL COLUMN MAPPINGS:
 "device tamper count" -> device_tamper_count (vts_alert_history) 
 "power disconnect count" -> main_supply_removal_count (vts_alert_history)
 "no halt zone count" -> no_halt_zone_count (vts_alert_history)
-"device_removed" -> device_offline_count (vts_alert_history) -- Clarification: This maps to device_offline_count
+"device_offline_count" -> device_offline_count (vts_alert_history)
+"device_tamper_count" -> device_tamper_count (vts_alert_history)
 
 "device_removed" -> device_removed(tt_risk_score)
-"power_disconnect" -> power_disconnect(tt_risk_score) 
+"power_disconnect" -> power_disconnect(tt_risk_score)
 "route_deviation" -> route_deviation(tt_risk_score)
 "stoppage_violation" -> stoppage_violation(tt_risk_score)
 
-"device_removed " -> device_removed(transporter_risk_score)
-"power_disconnect" -> power_disconnect(transporter_risk_score) 
+"device_removed" -> device_removed(transporter_risk_score)
+"power_disconnect" -> power_disconnect(transporter_risk_score)
 "route_deviation" -> route_deviation(transporter_risk_score)
 "stoppage_violation" -> stoppage_violation(transporter_risk_score)
 "blackelisted trucks" -> whether_truck_blacklisted (vts_truck_master)
@@ -1458,33 +1573,24 @@ LOCATION FIELDS:
 """,
 
     "general_rules": """
-1. MANDATORY: When joining multiple tables, ALWAYS prefix column names with their table alias (e.g., `trs.risk_score`, `vtm.transporter_name`) to avoid ambiguous column errors.
-2. NEVER write 'SELECT risk_score' in multi-table queries; always use an alias like 'SELECT trs.risk_score'.
-3. ALWAYS use the correct vehicle identifier for each table
-4. For vts_alert_history: use tl_number
-5. For vts_ongoing_trips: use TT_NUMBER
-6. Always include 'Data Table' column in SELECT
-7. Use ILIKE for case-insensitive matching
-8. Cast dates properly with ::date
-1. ALWAYS use the correct vehicle identifier for each table
-3. For vts_alert_history: use tl_number
-4. For vts_ongoing_trips: use TT_NUMBER
-5. Always include 'Data Table' column in SELECT
-6. Use ILIKE for case-insensitive matching
-7. Cast dates properly with ::date
-8. Handle case variations in vehicle identifiers using UPPER() or ILIKE
-9. For trip audits, emlock, or swipe data, use vts_tripauditmaster.
-10. NEVER reference columns that don't exist in a table
-11. Check schema carefully before using location columns
-12. Take vts_end_datetime from vts_alert_history for date filtering
-13. violations are in vts_alert_history table are route_deviation_count, stoppage_violations_count, speed_violation_count, main_supply_removal_count, night_driving_count, no_halt_zone_count, device_offline_count, device_tamper_count, continuous_driving_count.
-14. violations in tt_risk_score table are device_removed, power_disconnect, route_deviation, stoppage_violation.
-15. violations in transporter_risk_score table are device_removed, power_disconnect, route_deviation, stoppage_violation.
-16. GROUP BY RULE: Any column in the SELECT list that is not inside an aggregate function (SUM, COUNT, AVG, MIN, MAX) MUST be included in the GROUP BY clause.
-17. SYNTAX: Use PostgreSQL syntax. Use '||' for string concatenation. Use 'LIMIT' for top N results.
-18. CRITICAL JOIN RULE: To join 'vts_alert_history' (vah) and 'alerts' (a), USE: `vah.id = a.id`. DO NOT use 'unique_id' for this join.
-19. VALUE VALIDATION: Before using any string constant for filtering (e.g. status, severity), CHECK context rules for valid values. DO NOT Hallucinate values like 'FALSE ALARM'.
-20. "ALWAYS include alert_section = 'VTS' for alerts table queries"
+0.  **TABLE SCOPE**: You MUST ONLY use the following tables: `alerts`, `vts_alert_history`, `vts_ongoing_trips`, `vts_truck_master`, `vts_tripauditmaster`, `tt_risk_score`, `transporter_risk_score`. Do NOT use any other tables under any circumstances.
+    - **DRIVER DATA**: The ONLY table containing `driver_name` is `vts_ongoing_trips`. If a question asks about drivers, you MUST include `vts_ongoing_trips`.
+    - **FINDING DRIVER FOR ALERT**: To find the driver for an alert (from `alerts` or `vts_alert_history`), you MUST JOIN with `vts_ongoing_trips` on the vehicle ID (`vehicle_number` = `tt_number`). Do NOT assume `driver_name` exists in `alerts`.
+1.  **ALIASES**: When joining multiple tables, ALWAYS prefix column names with a table alias (e.g., `trs.risk_score`, `vtm.transporter_name`) to avoid ambiguous column errors.
+2.  **VEHICLE IDs**: Use the correct vehicle identifier for each table. `vts_alert_history` uses `tl_number`, `vts_ongoing_trips` uses `tt_number`, `vts_truck_master` uses `truck_no`.
+3.  **GROUP BY**: Any column in the SELECT list that is not an aggregate function (SUM, COUNT, AVG, etc.) MUST be included in the GROUP BY clause.
+4.  **SYNTAX**: Use PostgreSQL syntax. Use `||` for string concatenation, and `LIMIT` for top N results.
+5.  **CTEs**: Every `WITH` clause (CTE) MUST be followed by a final `SELECT` statement that uses it.
+6.  **JOINING `alerts`**: To join `vts_alert_history` (vah) and `alerts` (a), USE: `vah.id = a.id`. DO NOT use `unique_id`.
+7.  **`alerts` TABLE FILTER**: ALWAYS include `alert_section = 'VTS'` when querying the `alerts` table.
+8.  **AGGREGATION ON TEXT**: Do NOT use aggregate functions like AVG() or SUM() on text columns (e.g., `report_duration`).
+9.  **TRIP AUDIT**: For trip audits, emlock, or swipe data, use `vts_tripauditmaster`. A `swipeoutl1` or `swipeoutl2` value of 'False' indicates a failure.
+10. **VIOLATION COLUMNS**:
+    - `vts_alert_history`: `stoppage_violations_count`, `route_deviation_count`, etc. are numeric counts. `violation_type` is a TEXT ARRAY.
+    - `tt_risk_score` & `transporter_risk_score`: `device_removed`, `power_disconnect`, etc. are risk components, not event counts.
+11. **CASE SENSITIVITY**: You MUST use `ILIKE` for all string comparisons on identifiers like vehicle numbers or names (e.g., `truck_no ILIKE 'JH06K0762'`). Do not use `=`.
+12. **SIMPLICITY**: For simple lookups on a single table (e.g., finding a transporter for one vehicle), use a direct `SELECT ... FROM ... WHERE ...` query. Do NOT use complex Common Table Expressions (CTEs) for simple lookups.
+13. **TIME-BASED RISK**: To query `tt_risk_score` or `transporter_risk_score` over a time period (e.g., 'last 30 days'), you MUST JOIN with `completed_trips_risk_score` and use `completed_trips_risk_score.scheduled_trip_end_datetime` for the time filter. The risk score tables themselves do not have a date column.
 """,
 
     "context_guidance": {
@@ -1504,12 +1610,16 @@ LOCATION FIELDS:
     },
 
     "critical_rules": {
-        "date_filtering": "ALWAYS use created_at::date = 'YYYY-MM-DD' for date filtering for all tables except vts_alert_history,for this vts_alert_history take vts_end_datetime column",
+        "date_filtering": "ALWAYS use created_at::date = 'YYYY-MM-DD' for date filtering for all tables except vts_alert_history,for this vts_alert_history take vts_end_datetime column. For ALERTS table, use `created_at` (NEVER `closed_at` unless asked).",
         "violation_sums": "ALWAYS sum ALL violation count columns for total violations from vts_alert_history",
         "vehicle_identifiers": "Use correct vehicle ID column for each table: tt_number, tl_number, truck_no, vehicle_number, trucknumber", # This is now superseded by DATA_MODEL
         "alert_section": "ALWAYS include alert_section = 'VTS' for alerts table queries",
         "violation_columns": "vts_alert_history.violation_type (ARRAY), vts_ongoing_trips.violation_type (TEXT), alerts.violation_type (TEXT)",
-        "array_functions": "For vts_alert_history arrays: use array_to_string(violation_type, ', ') not violation_types"
+        "array_functions": "For vts_alert_history arrays: use array_to_string(violation_type, ', ') not violation_types",
+        "comprehensive_data": "If user asks for 'vehicle data', 'complete data', 'all data', or 'timeline', generate the comprehensive UNION ALL query across all tables (vehicle_timeline template).",
+        "no_implicit_filters": "CRITICAL: Do NOT add filters for specific violation types (like 'RD', 'SD', 'Over Speed') unless explicitly asked. If asked for 'alerts' or 'violations', count ALL records without extra WHERE clauses.",
+        "strict_formatting": "CRITICAL: OUTPUT PURE SQL ONLY. IF YOU WRITE ANY TEXT BEFORE OR AFTER THE SQL, YOU WILL FAIL. NO EXPLANATIONS.",
+        "anti_hallucination": "CRITICAL: Column `driver_id` DOES NOT EXIST; use `driver_name`. Table `drivers` DOES NOT EXIST; use `vts_ongoing_trips`. Column `violation_severity` DOES NOT EXIST; use `severity` in `alerts`."
     }
 }
 
@@ -1555,6 +1665,7 @@ DATA_MODEL = {
                 "vts_ongoing_trips": "tt_number",
                 "tt_risk_score": "tt_number",
                 "vts_tripauditmaster": "trucknumber",
+                "completed_trips_risk_score": "tt_number"
             }
         },
         "transporter": {
@@ -1580,6 +1691,7 @@ DATA_MODEL = {
         "vts_ongoing_trips.tt_number": "vts_truck_master.truck_no",
         "tt_risk_score.tt_number": "vts_truck_master.truck_no",
         "vts_tripauditmaster.trucknumber": "vts_truck_master.truck_no",
+        "completed_trips_risk_score.tt_number": "vts_truck_master.truck_no",
         "vts_truck_master.transporter_code": "transporter_risk_score.transporter_code",
     },
     "forbidden_joins": [
@@ -1594,6 +1706,9 @@ DATA_MODEL = {
         "violation_history": "vts_alert_history.vts_end_datetime",
         "live_trips": "vts_ongoing_trips.event_start_datetime",
         "trip_audit": "vts_tripauditmaster.createdat",
+        "completed_trips": "completed_trips_risk_score.scheduled_trip_end_datetime",
+        "tt_risk_score": "completed_trips_risk_score.scheduled_trip_end_datetime",
+        "transporter_risk_score": "completed_trips_risk_score.scheduled_trip_end_datetime"
     },
     "aggregation_rule": "CRITICAL: ALWAYS aggregate data FIRST using a Common Table Expression (CTE), and only THEN join to other tables. This prevents row explosion errors.",
     "canonical_question_map": {
@@ -1833,7 +1948,7 @@ SQL_RULES["time_patterns"] = {
 TRAINING_QA_PAIRS_RAW = [
 
     ("Vehicles with speed violations but NOT in high-risk category",
-    """SELECT
+    """SELECT DISTINCT
     'speed_not_high_risk' AS "Data Table",
     vah.tl_number,
     trs.risk_score
@@ -1955,28 +2070,6 @@ FROM trend_check
 GROUP BY tl_number, num_months
 HAVING SUM(is_increasing) = num_months - 1 AND num_months > 1;"""),
 
-    # ===== NEW: GOLD STANDARD - Demo Failing Query =====
-    ("which transporter has maximum risk score and maximum violations",
-    """SELECT 
-    vtm.transporter_name, 
-    MAX(trs.risk_score) AS max_risk_score,
-    SUM(
-        COALESCE(vah.stoppage_violations_count, 0) +
-        COALESCE(vah.route_deviation_count, 0) +
-        COALESCE(vah.speed_violation_count, 0) +
-        COALESCE(vah.main_supply_removal_count, 0) +
-        COALESCE(vah.night_driving_count, 0) +
-        COALESCE(vah.no_halt_zone_count, 0) +
-        COALESCE(vah.device_offline_count, 0) +
-        COALESCE(vah.device_tamper_count, 0) +
-        COALESCE(vah.continuous_driving_count, 0)
-    ) AS total_violations
-FROM vts_truck_master vtm 
-JOIN vts_alert_history vah ON vtm.truck_no = vah.tl_number
-JOIN transporter_risk_score trs ON vtm.transporter_code = trs.transporter_code
-GROUP BY vtm.transporter_name
-ORDER BY max_risk_score DESC, total_violations DESC LIMIT 1
-"""),
 
     # ===== NEW: GOLD STANDARD - Hierarchical Query (Transporter + Vehicle) =====
     ("Give transporter-wise total violations and number of vehicles, along with each vehicle’s violation count, for the last 2 months.",
@@ -2480,7 +2573,7 @@ WHERE vts_end_datetime::date = CURRENT_DATE - INTERVAL '1 day'
     tl_number,
     SUM(stoppage_violations_count) as total_stoppage_violations
 FROM vts_alert_history
-WHERE tl_number = 'BR01GK1527'
+WHERE tl_number ILIKE 'BR01GK1527'
 GROUP BY tl_number
 """),
 
@@ -2489,7 +2582,7 @@ GROUP BY tl_number
     tl_number,
     SUM(route_deviation_count) as total_route_deviations
 FROM vts_alert_history
-WHERE tl_number = 'KA13B3272'
+WHERE tl_number ILIKE 'KA13B3272'
 GROUP BY tl_number"""),
 
     ("total number of violations for CG04PN3333 in vts_alert_history",
@@ -2499,7 +2592,7 @@ GROUP BY tl_number"""),
         night_driving_count + device_offline_count + device_tamper_count + 
         continuous_driving_count + no_halt_zone_count + main_supply_removal_count) AS total_violations
 FROM vts_alert_history
-WHERE tl_number = 'CG04PN3333'
+WHERE tl_number ILIKE 'CG04PN3333'
 GROUP BY tl_number
 """),
 
@@ -2510,7 +2603,7 @@ GROUP BY tl_number
         night_driving_count + device_offline_count + device_tamper_count + 
         continuous_driving_count + no_halt_zone_count + main_supply_removal_count) AS total_violations
 FROM vts_alert_history
-WHERE tl_number = 'KA13B3272'
+WHERE tl_number ILIKE 'KA13B3272'
 GROUP BY tl_number
 """),
 
@@ -2523,6 +2616,9 @@ GROUP BY tl_number
     ("AP05TB9465", get_comprehensive_query_for_training(query_type="vehicle_timeline", vehicle_id="AP05TB9465")),
     ("HR46F0066", get_comprehensive_query_for_training(query_type="vehicle_timeline", vehicle_id="HR46F0066")),
     ("RJ19GD6553", get_comprehensive_query_for_training(query_type="vehicle_timeline", vehicle_id="RJ19GD6553")),
+    ("give me complete data for vehicle KA13AA2040", get_comprehensive_query_for_training(query_type="vehicle_timeline", vehicle_id="KA13AA2040")),
+    ("vehicle data for HR46F0066", get_comprehensive_query_for_training(query_type="vehicle_timeline", vehicle_id="HR46F0066")),
+    ("full details for vehicle AP05TB9465", get_comprehensive_query_for_training(query_type="vehicle_timeline", vehicle_id="AP05TB9465")),
 
     # ===== CORRECTED TIME-BASED QUERIES =====
     ("What's the total number of stoppage count in last month",
@@ -2974,8 +3070,14 @@ WHERE tl_number = 'KA13B3272'
     transporter_name,
     location_name
 FROM vts_truck_master 
-WHERE truck_no = 'KA13AA2040'
+WHERE truck_no ILIKE 'KA13AA2040'
 """),
+
+    ("who is the transporter for vehicle JH06K0762",
+     """SELECT 'vts_truck_master' AS "Data Table",
+    transporter_name
+FROM vts_truck_master
+WHERE truck_no ILIKE 'JH06K0762'"""),
 
     # ===== CORRECTED DAILY SUMMARY QUERIES =====
     ("daily operations summary",
@@ -4344,17 +4446,6 @@ ORDER BY created_at DESC"""),
      ORDER BY total_stoppage DESC
 """),
     
-    # ===== ZONE/REGION ANALYSIS =====
-    ("zone-wise violation summary",
-     """
-     SELECT COALESCE(vah.zone, 'Unknown') as zone,
-            COUNT(DISTINCT vah.tl_number) as vehicles,
-            SUM(vah.stoppage_violations_count) as stoppage_violations,
-            SUM(vah.route_deviation_count) as route_deviations 
-     FROM vts_alert_history vah
-     WHERE vah.vts_end_datetime >= CURRENT_DATE - INTERVAL '30 days'
-     GROUP BY COALESCE(vah.zone, 'Unknown')
-     ORDER BY stoppage_violations DESC"""),
     
     ("region performance analysis",
      """
@@ -6210,20 +6301,6 @@ ORDER BY total_violations DESC
 LIMIT 50;
 """),
 
-    # ===== `vts_ongoing_trips` Table Expansion =====
-    ("List ongoing trips with their scheduled vs actual start times",
-    """SELECT
-    'vts_ongoing_trips' AS "Data Table",
-    tt_number,
-    trip_id,
-    scheduled_start_datetime,
-    actual_trip_start_datetime,
-    (actual_trip_start_datetime - scheduled_start_datetime) as start_delay
-FROM vts_ongoing_trips
-WHERE actual_trip_start_datetime IS NOT NULL AND scheduled_start_datetime IS NOT NULL
-ORDER BY start_delay DESC
-LIMIT 20;
-"""),
 
     ("Which drivers are currently on a trip?",
     """SELECT DISTINCT
@@ -6934,20 +7011,6 @@ ORDER BY total_violations DESC
 LIMIT 50;
 """),
 
-    # ===== `vts_ongoing_trips` Table Expansion =====
-    ("List ongoing trips with their scheduled vs actual start times",
-    """SELECT
-    'vts_ongoing_trips' AS "Data Table",
-    tt_number,
-    trip_id,
-    scheduled_start_datetime,
-    actual_trip_start_datetime,
-    (actual_trip_start_datetime - scheduled_start_datetime) as start_delay
-FROM vts_ongoing_trips
-WHERE actual_trip_start_datetime IS NOT NULL AND scheduled_start_datetime IS NOT NULL
-ORDER BY start_delay DESC
-LIMIT 20;
-"""),
 
     ("Which drivers are currently on a trip?",
     """SELECT DISTINCT
@@ -8055,7 +8118,6 @@ WHERE
     c1.table_name = 'tt_risk_score'
     AND c2.table_name = 'transporter_risk_score'
 ORDER BY c1.column_name;"""),
-
 
     # ===== `vts_truck_master` for Context/Filtering ONLY =====
     ("Show me the total violations for all vehicles with 'Market' ownership type in the last 30 days",
@@ -10741,27 +10803,6 @@ HAVING SUM(vh.total_trips) < 3
 """
 ),
 
-
-
-(
-"Identify vehicles whose risk score increased after multiple alerts were raised.",
-"""
-SELECT
-  trs.tt_number,
-  COUNT(a.id) AS alert_count,
-  AVG(trs.risk_score) AS avg_risk
-FROM tt_risk_score trs
-JOIN alerts a
-  ON trs.tt_number = a.vehicle_number
-JOIN vts_truck_master tm
-  ON trs.tt_number = tm.truck_no
-WHERE trs.calculated_at > a.created_at
-GROUP BY trs.tt_number
-HAVING COUNT(a.id) > 5
-   AND AVG(trs.risk_score) > 60;
-"""
-),
-
 (
 "Find vehicles with high risk score but low historical violation counts.",
 """
@@ -10836,24 +10877,6 @@ JOIN vts_truck_master tm
 GROUP BY trs.tt_number
 HAVING COUNT(a.id) > 5
    AND AVG(trs.risk_score) < 40;
-"""
-),
-
-(
-"Find vehicles whose risk score spikes during ongoing trips.",
-"""
-SELECT
-  ot.trip_id,
-  trs.tt_number,
-  AVG(trs.risk_score) AS avg_risk
-FROM tt_risk_score trs
-JOIN vts_ongoing_trips ot
-  ON trs.tt_number = ot.tt_number
-JOIN vts_truck_master tm
-  ON trs.tt_number = tm.truck_no
-WHERE trs.calculated_at > ot.actual_trip_start_datetime
-GROUP BY ot.trip_id, trs.tt_number
-HAVING AVG(trs.risk_score) > 65;
 """
 ),
 
@@ -11000,23 +11023,6 @@ GROUP BY trs.tt_number
 HAVING AVG(trs.risk_score) > 60
    AND SUM(vh.total_trips) < 5;
 """
-),
-
-(
-"Identify vehicles with high risk score during dry-out periods.",
-"""
-SELECT
-  trs.tt_number,
-  AVG(trs.risk_score) AS avg_risk
-FROM tt_risk_score trs
-JOIN alerts a
-  ON trs.tt_number = a.vehicle_number
-JOIN vts_truck_master tm
-  ON trs.tt_number = tm.truck_no
-WHERE trs.calculated_at BETWEEN a.dry_out_start_time AND a.dry_out_end_time
-GROUP BY trs.tt_number
-HAVING AVG(trs.risk_score) > 60;
-""",
 ),
 
 (
@@ -11740,6 +11746,129 @@ HAVING tm.whether_truck_blacklisted = 'N'
 """
 ),
 
+    (
+         "What is the total TT risk score for transporter '28253213' in the last 30 days?",
+"""
+ SELECT 
+        SUM(ttrs.risk_score) AS total_tt_risk_score
+    FROM tt_risk_score ttrs
+    JOIN completed_trips_risk_score ctrs
+        ON ttrs.transporter_code = ctrs.transporter_code
+    WHERE ctrs.scheduled_trip_end_datetime >= CURRENT_DATE - INTERVAL '30 days'
+      AND ttrs.transporter_code = '28253213';
+"""
+    ),
+    (
+     "Show me the average transporter risk score for '28253213' between June and July 2024.",
+    """
+SELECT 
+        AVG(trs.risk_score) AS avg_transporter_risk_score
+    FROM transporter_risk_score trs
+    JOIN completed_trips_risk_score ctrs
+        ON trs.transporter_code = ctrs.transporter_code
+    WHERE ctrs.scheduled_trip_end_datetime BETWEEN '2024-06-01' AND '2024-07-31'
+      AND trs.transporter_code = '28253213';
+"""
+    ),
+
+    # ===== NEW: Time-Based Risk Score Examples =====
+    (
+        "What is the average tt risk score for trips completed in the last 90 days?",
+        """SELECT
+    AVG(ttrs.risk_score)
+FROM tt_risk_score AS ttrs
+JOIN completed_trips_risk_score AS ctrs ON ttrs.tt_number = ctrs.tt_number
+WHERE ctrs.scheduled_trip_end_datetime >= CURRENT_DATE - INTERVAL '90 days';"""
+    ),
+    (
+        "Calculate the average transporter risk score for trips finished in the past 6 months.",
+        """SELECT
+    AVG(trs.risk_score)
+FROM transporter_risk_score AS trs
+JOIN completed_trips_risk_score AS ctrs ON trs.transporter_code = ctrs.transporter_code
+WHERE ctrs.scheduled_trip_end_datetime >= CURRENT_DATE - INTERVAL '6 months';"""
+    ),
+    (
+        "For transporter '28114169', what was the total vehicle risk score from trips completed between '2024-01-01' and '2024-03-31'?",
+        """SELECT
+    SUM(ttrs.risk_score)
+FROM tt_risk_score AS ttrs
+JOIN completed_trips_risk_score AS ctrs ON ttrs.transporter_code = ctrs.transporter_code
+WHERE ttrs.transporter_code = '28114169'
+  AND ctrs.scheduled_trip_end_datetime BETWEEN '2024-01-01' AND '2024-03-31';"""
+    ),
+    (
+        "What was the average transporter risk score for 'PAMON ROADWAYS' in the last year?",
+        """SELECT
+    AVG(trs.risk_score) as average_risk_score
+FROM transporter_risk_score AS trs
+JOIN completed_trips_risk_score AS ctrs ON trs.transporter_code = ctrs.transporter_code
+WHERE trs.transporter_name ILIKE '%PAMON ROADWAYS%'
+  AND ctrs.scheduled_trip_end_datetime >= CURRENT_DATE - INTERVAL '1 year';"""
+    ),
+    (
+        "List the top 5 vehicles by their master risk score, considering only vehicles that completed a trip in the last 30 days.",
+        """SELECT
+    ttrs.tt_number,
+    ttrs.risk_score
+FROM tt_risk_score AS ttrs
+WHERE EXISTS (
+    SELECT 1
+    FROM completed_trips_risk_score ctrs
+    WHERE ctrs.tt_number = ttrs.tt_number
+      AND ctrs.scheduled_trip_end_datetime >= CURRENT_DATE - INTERVAL '30 days'
+)
+ORDER BY ttrs.risk_score DESC
+LIMIT 5;"""
+    ),
+    (
+        "How many transporters had an average risk score above 60 for trips completed this year?",
+        """SELECT
+    COUNT(DISTINCT trs.transporter_code)
+FROM transporter_risk_score AS trs
+JOIN completed_trips_risk_score AS ctrs ON trs.transporter_code = ctrs.transporter_code
+WHERE ctrs.scheduled_trip_end_datetime >= DATE_TRUNC('year', CURRENT_DATE)
+GROUP BY trs.transporter_code
+HAVING AVG(trs.risk_score) > 60;"""
+    ),
+    (
+        "For vehicles in the 'North' zone, what was the average vehicle risk score for trips completed in the last quarter?",
+        """SELECT
+    AVG(ttrs.risk_score)
+FROM tt_risk_score AS ttrs
+JOIN vts_truck_master AS vtm ON ttrs.tt_number = vtm.truck_no
+JOIN completed_trips_risk_score AS ctrs ON ttrs.tt_number = ctrs.tt_number
+WHERE vtm.zone = 'North'
+  AND ctrs.scheduled_trip_end_datetime >= DATE_TRUNC('quarter', CURRENT_DATE);"""
+    ),
+    (
+        "Show me the monthly average transporter risk score for the last 6 months.",
+        """SELECT
+    DATE_TRUNC('month', ctrs.scheduled_trip_end_datetime)::DATE as trip_month,
+    AVG(trs.risk_score) as monthly_avg_risk
+FROM transporter_risk_score AS trs
+JOIN completed_trips_risk_score AS ctrs ON trs.transporter_code = ctrs.transporter_code
+WHERE ctrs.scheduled_trip_end_datetime >= CURRENT_DATE - INTERVAL '6 months'
+GROUP BY trip_month
+ORDER BY trip_month;"""
+    ),
+    (
+        "What was the average risk score of vehicles that finished trips yesterday?",
+        """SELECT
+    AVG(ttrs.risk_score)
+FROM tt_risk_score AS ttrs
+JOIN completed_trips_risk_score AS ctrs ON ttrs.tt_number = ctrs.tt_number
+WHERE ctrs.scheduled_trip_end_datetime::DATE = CURRENT_DATE - INTERVAL '1 day';"""
+    ),
+    (
+        "What is the historical average tt_risk_score for the last 2 months?",
+        """SELECT
+    AVG(ttrs.risk_score)
+FROM tt_risk_score AS ttrs
+JOIN completed_trips_risk_score AS ctrs ON ttrs.tt_number = ctrs.tt_number
+WHERE ctrs.scheduled_trip_end_datetime >= CURRENT_DATE - INTERVAL '2 months';"""
+    ),
+
 (
 "Find trucks where transporter fleet risk is low but vehicle risk is high.",
 """
@@ -11827,6 +11956,22 @@ WHERE NOT EXISTS (
     WHERE a.vehicle_number = vtm.truck_no
     AND a.created_at >= CURRENT_DATE - INTERVAL '7 days'
 );"""),
+
+    (
+        "List all drivers associated with transporter 'MS AMARJEET TRANSPORT COMPANY' who have vehicles with more than 5 alerts",
+        """SELECT
+  vot.driver_name,
+  vtm.transporter_name,
+  COUNT(a.id) AS alert_count
+FROM vts_truck_master vtm
+JOIN alerts a
+  ON vtm.truck_no = a.vehicle_number
+JOIN vts_ongoing_trips vot
+  ON vtm.truck_no = vot.tt_number
+WHERE vtm.transporter_name = 'MS AMARJEET TRANSPORT COMPANY'
+GROUP BY vot.driver_name, vtm.transporter_name
+HAVING COUNT(a.id) > 5;"""
+    )
 ]
 
 # Convert raw pairs to structured dictionaries with metadata

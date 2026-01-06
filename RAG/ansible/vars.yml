@@ -1,0 +1,54 @@
+---
+# Project paths
+project_root: "{{ playbook_dir }}"
+scripts_dir: "{{ project_root }}/scripts"
+logs_dir: "{{ project_root }}/logs"
+
+# Ollama configuration
+ollama_install_dir: >-
+  {{ '/opt/homebrew/bin' if ansible_system == 'Darwin' else '/usr/local/bin' }}
+ollama_models_dir: "{{ ansible_env.HOME }}/.ollama/models"
+ollama_download_url_linux: "https://ollama.com/download/ollama-linux-amd64"
+
+# Environment file location (project root)
+env_file_dest: "{{ project_root }}/ansib_env"
+
+# Model configuration
+models:
+  - name: "defog-llama3"
+    full_name: "mannix/defog-llama3-sqlcoder-8b:latest"
+    port: 8001
+    description: "Defog Llama3 SQL Coder Model"
+    log_file: "{{ logs_dir }}/defog-llama3.log"
+    script_path: "{{ scripts_dir }}/defog-llama3.sh"
+  
+  - name: "deepseek-coder-v2"
+    full_name: "deepseek-coder-v2:latest"
+    port: 8002
+    description: "DeepSeek Coder V2 Model"
+    log_file: "{{ logs_dir }}/deepseek-coder-v2.log"
+    script_path: "{{ scripts_dir }}/deepseek-coder-v2.sh"
+  
+  - name: "llama3"
+    full_name: "llama3.1:8b"
+    port: 8003
+    description: "Llama 3.1 8B Model"
+    log_file: "{{ logs_dir }}/llama3.log"
+    script_path: "{{ scripts_dir }}/llama3.sh"
+
+# System packages
+ubuntu_packages:
+  - curl
+  - build-essential
+  - make
+  - gcc
+  - g++
+  - wget
+
+mac_packages:
+  - make
+  - wget
+
+# Resource requirements
+min_disk_space_gb: 20
+min_memory_gb: 8

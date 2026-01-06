@@ -1,0 +1,73 @@
+---
+- name: Check if Ollama is already installed
+  command: which ollama
+  register: ollama_check
+  failed_when: false
+  changed_when: false
+
+- name: Install Ollama on Linux using official install script
+  shell: curl -fsSL https://ollama.com/install.sh | sh
+  become: yes
+  when: 
+    - ansible_facts['os_family'] == "Debian"
+    - ollama_check.rc != 0
+
+- name: Install Ollama on Mac using Homebrew
+  homebrew:
+    name: ollama
+    state: present
+  when:
+    - ansible_system == 'Darwin'
+    - ollama_check.rc != 0
+
+- name: Verify Ollama installation
+  command: ollama --version
+  register: ollama_version
+  changed_when: false
+
+- name: Display Ollama version
+  debug:
+    msg: "Ollama {{ ollama_version.stdout }} installed successfully"
+
+- name: Check if Ollama service is running
+  shell: pgrep -f "ollama serve" || echo "not_running"
+  register: ollama_check
+  changed_when: false
+
+- name: Start Ollama service temporarily for model download
+  shell: |
+    nohup ollama serve > {{ logs_dir }}/ollama-setup.log 2>&1 &
+  when: ollama_check.stdout == "not_running"
+  async: 10
+  poll: 0
+
+- name: Wait for Ollama service to be ready
+  wait_for:
+    port: 11434
+    host: localhost
+    delay: 3
+    timeout: 30
+
+- name: Pull Ollama models
+  command: "ollama pull {{ item.full_name }}"
+  loop: "{{ models }}"
+  register: pull_result
+  changed_when: "'success' in pull_result.stdout or 'pulled' in pull_result.stdout"
+  async: 3600
+  poll: 30
+
+- name: Verify models are downloaded
+  command: ollama list
+  register: model_list
+  changed_when: false
+
+- name: Stop temporary Ollama service
+  shell: pkill -f "ollama serve" || true
+  changed_when: false
+
+- name: Generate model startup scripts
+  template:
+    src: "{{ item.name }}.sh.j2"
+    dest: "{{ item.script_path }}"
+    mode: '0755'
+  loop: "{{ models }}"

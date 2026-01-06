@@ -1,0 +1,31 @@
+# Ansible Ollama LLM Environment Configuration
+# Generated: 2026-01-06T05:20:35Z
+# System: Darwin - MacOSX
+
+# Project Paths
+PROJECT_ROOT=/Users/thrinesharigela/Desktop/ansible
+SCRIPTS_DIR=/Users/thrinesharigela/Desktop/ansible/scripts
+LOGS_DIR=/Users/thrinesharigela/Desktop/ansible/logs
+
+# Ollama Configuration
+OLLAMA_INSTALL_DIR=/opt/homebrew/bin
+OLLAMA_MODELS_DIR=/Users/thrinesharigela/.ollama/models
+
+# Model Configuration
+DEFOG_LLAMA3_MODEL=mannix/defog-llama3-sqlcoder-8b:latest
+DEFOG_LLAMA3_PORT=8001
+DEFOG_LLAMA3_LOG=/Users/thrinesharigela/Desktop/ansible/logs/defog-llama3.log
+DEFOG_LLAMA3_SCRIPT=/Users/thrinesharigela/Desktop/ansible/scripts/defog-llama3.sh
+DEEPSEEK_CODER_V2_MODEL=deepseek-coder-v2:latest
+DEEPSEEK_CODER_V2_PORT=8002
+DEEPSEEK_CODER_V2_LOG=/Users/thrinesharigela/Desktop/ansible/logs/deepseek-coder-v2.log
+DEEPSEEK_CODER_V2_SCRIPT=/Users/thrinesharigela/Desktop/ansible/scripts/deepseek-coder-v2.sh
+LLAMA3_MODEL=llama3.1:8b
+LLAMA3_PORT=8003
+LLAMA3_LOG=/Users/thrinesharigela/Desktop/ansible/logs/llama3.log
+LLAMA3_SCRIPT=/Users/thrinesharigela/Desktop/ansible/scripts/llama3.sh
+
+# System Information
+OS_FAMILY=Darwin
+DISTRIBUTION=MacOSX
+ARCHITECTURE=arm64

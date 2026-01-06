@@ -1,0 +1,65 @@
+---
+- name: Create required directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ scripts_dir }}"
+    - "{{ logs_dir }}"
+
+- name: Check available disk space (root filesystem, GB)
+  shell: |
+    df -k / | awk 'NR==2 {print int($4/1024/1024)}'
+  register: disk_space
+  changed_when: false
+
+- name: Verify disk space requirement
+  assert:
+    that:
+      - disk_space.stdout | int >= min_disk_space_gb
+    fail_msg: >
+      Insufficient disk space.
+      Required: {{ min_disk_space_gb }}GB,
+      Available: {{ disk_space.stdout }}GB
+
+
+- name: Install required packages on Ubuntu
+  apt:
+    name: "{{ ubuntu_packages }}"
+    state: present
+    update_cache: yes
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Check if Homebrew is installed on Mac
+  stat:
+    path: "{{ item }}"
+  register: homebrew_paths
+  loop:
+    - /opt/homebrew/bin/brew
+    - /usr/local/bin/brew
+  when: ansible_facts['os_family'] == "Darwin"
+
+- name: Set Homebrew installed fact
+  set_fact:
+    homebrew_installed: "{{ homebrew_paths.results | selectattr('stat.exists') | list | length > 0 }}"
+  when: ansible_facts['os_family'] == "Darwin"
+
+- name: Install Homebrew on Mac if not present
+  shell: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  when: 
+    - ansible_facts['os_family'] == "Darwin"
+    - not homebrew_installed
+
+- name: Install required packages on Mac
+  homebrew:
+    name: "{{ mac_packages }}"
+    state: present
+  when: ansible_facts['os_family'] == "Darwin"
+
+- name: Generate ansib_env file in project root
+  template:
+    src: ansib_env.j2
+    dest: "{{ env_file_dest }}"
+    mode: '0644'
