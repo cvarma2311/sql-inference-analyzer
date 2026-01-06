@@ -1,0 +1,6 @@
+# Security: Ignore the private environment file
+.env
+# Ignore temporary/system files
+__pycache__/
+*.py[cod]
+.DS_Store

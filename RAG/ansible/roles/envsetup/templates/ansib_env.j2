@@ -1,0 +1,25 @@
+# Ansible Ollama LLM Environment Configuration
+# Generated: {{ ansible_date_time.iso8601 }}
+# System: {{ ansible_facts['os_family'] }} - {{ ansible_facts['distribution'] }}
+
+# Project Paths
+PROJECT_ROOT={{ project_root }}
+SCRIPTS_DIR={{ scripts_dir }}
+LOGS_DIR={{ logs_dir }}
+
+# Ollama Configuration
+OLLAMA_INSTALL_DIR={{ ollama_install_dir }}
+OLLAMA_MODELS_DIR={{ ollama_models_dir }}
+
+# Model Configuration
+{% for model in models %}
+{{ model.name | upper | replace('-', '_') }}_MODEL={{ model.full_name }}
+{{ model.name | upper | replace('-', '_') }}_PORT={{ model.port }}
+{{ model.name | upper | replace('-', '_') }}_LOG={{ model.log_file }}
+{{ model.name | upper | replace('-', '_') }}_SCRIPT={{ model.script_path }}
+{% endfor %}
+
+# System Information
+OS_FAMILY={{ ansible_facts['os_family'] }}
+DISTRIBUTION={{ ansible_facts['distribution'] }}
+ARCHITECTURE={{ ansible_facts['architecture'] }}

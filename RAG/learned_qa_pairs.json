@@ -1,0 +1,27 @@
+[
+  {
+    "question": "List all vehicles that had speed violations but are not categorized as high risk",
+    "sql": "SELECT DISTINCT 'speed_not_high_risk' AS \"Data Table\", vah.tl_number, trs.risk_score FROM vts_alert_history vah JOIN tt_risk_score trs ON vah.tl_number = trs.tt_number WHERE vah.speed_violation_count > 0 AND trs.risk_score <= 50 ORDER BY trs.risk_score DESC",
+    "query_type": "general"
+  },
+  {
+    "question": "List all vehicles that had speed violations but are not categorized as high risk",
+    "sql": "SELECT DISTINCT \n    'speed_not_high_risk' AS \"Data Table\",\n    vah.tl_number,\n    trs.risk_score\nFROM vts_alert_history vah\nJOIN tt_risk_score trs ON vah.tl_number = trs.tt_number\nWHERE vah.speed_violation_count > 0 AND trs.risk_score <= 50 \nORDER BY trs.risk_score DESC",
+    "query_type": "general"
+  },
+  {
+    "question": "List all vehicles that had speed violations but are not categorized as high risk",
+    "sql": "SELECT DISTINCT 'speed_not_high_risk' AS \"Data Table\", vah.tl_number, trs.risk_score \nFROM vts_alert_history vah\nJOIN tt_risk_score trs ON vah.tl_number = trs.tt_number\nWHERE vah.speed_violation_count > 0 AND trs.risk_score <= 50 \nORDER BY trs.risk_score DESC",
+    "query_type": "general"
+  },
+  {
+    "question": "List all transporters who have vehicles with no alerts in the last 30 days",
+    "sql": "SELECT\n    'vts_truck_master' AS \"Data Table\",\n    vtm.truck_no,\n    vtm.transporter_name\nFROM vts_truck_master vtm\nWHERE NOT EXISTS (\n    SELECT 1 FROM alerts a WHERE a.vehicle_number = vtm.truck_no AND a.created_at >= CURRENT_DATE - INTERVAL '30 day'\n);",
+    "query_type": "general"
+  },
+  {
+    "question": "List all transporters who have vehicles with no alerts in the last 30 days",
+    "sql": "SELECT\n    'vts_truck_master' AS \"Data Table\",\n    vtm.truck_no,\n    vtm.transporter_name\nFROM vts_truck_master vtm\nWHERE NOT EXISTS (\n    SELECT 1 FROM alerts a WHERE a.vehicle_number = vtm.truck_no AND a.created_at >= CURRENT_DATE - INTERVAL '30 day'\n);",
+    "query_type": "general"
+  }
+]
